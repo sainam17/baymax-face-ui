@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BayMax Robot Face</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ===== EYE SOCKET — rounded rectangle (capsule) container ===== */
+    .eye-socket {
+      position: relative;
+      width: 200px;
+      height: 300px;
+      border-radius: 100px;
+      overflow: hidden;
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(100, 140, 255, 0.06);
+    }
+
+    /* ===== EYEBALL — fills the socket, rounded rectangle ===== */
+    .eyeball {
+      position: absolute;
+      inset: 0;
+      border-radius: 100px;
+      background: radial-gradient(ellipse at 45% 40%, #3a3a3a, #0a0a0a 60%, #000000 100%);
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ===== IRIS — lighter ring inside eyeball ===== */
+    .iris {
+      position: absolute;
+      width: 60%;
+      height: 45%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 45% 40%, #4a4a4a, #1a1a1a 60%, #000 100%);
+      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.08);
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        width 0.4s ease, height 0.4s ease;
+    }
+
+    /* ===== PUPIL — center dark dot ===== */
+    .pupil {
+      position: absolute;
+      width: 40%;
+      height: 40%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, #000000, #0a0a0a);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    /* ===== REFLECTIONS — glint highlights ===== */
+    .reflection {
+      position: absolute;
+      top: 18%;
+      right: 20%;
+      width: 25%;
+      height: 18%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      filter: blur(2px);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .reflection-sm {
+      position: absolute;
+      bottom: 25%;
+      left: 25%;
+      width: 10%;
+      height: 8%;
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 50%;
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    /* ===== EYELIDS — straight flat edges that can rotate ===== */
+    .eyelid {
+      position: absolute;
+      left: -10%;
+      width: 120%;
+      height: 52%;
+      background: #ffffff;
+      z-index: 10;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      /* No border-radius — straight edge */
+    }
+
+    .eyelid-top {
+      top: 0;
+      transform: translateY(-88%);
+      transform-origin: center bottom;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .eyelid-bottom {
+      bottom: 0;
+      transform: translateY(88%);
+      transform-origin: center top;
+      box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ===== EYELID STATES ===== */
+
+    /* Happy squint — top comes down + slight inward angle */
+    .eyelid-top.squint {
+      transform: translateY(-55%) rotate(0deg);
+    }
+
+    .eyelid-bottom.squint {
+      transform: translateY(55%) rotate(0deg);
+    }
+
+    /* Angry/determined — eyelids angle inward (left eye rotates one way, right the other) */
+    .eye-socket.left-eye .eyelid-top.angry {
+      transform: translateY(-55%) rotate(12deg);
+    }
+
+    .eye-socket.right-eye .eyelid-top.angry {
+      transform: translateY(-55%) rotate(-12deg);
+    }
+
+    /* Thinking — eyelid droops straight down (no rotation) */
+    .eyelid-top.droop-straight {
+      transform: translateY(-55%) rotate(10deg);
+    }
+
+    /* Thinking — eyelid droops at angle */
+    .eyelid-top.droop {
+      transform: translateY(-70%) rotate(0deg);
+    }
+
+    /* Surprised — eyelids pull back fully */
+    .eyelid-top.wide {
+      transform: translateY(-100%) rotate(0deg);
+    }
+
+    .eyelid-bottom.wide {
+      transform: translateY(100%) rotate(0deg);
+    }
+
+    /* Skeptical — one eyebrow raised (slight tilt) */
+    .eyelid-top.raised {
+      transform: translateY(-95%) rotate(-5deg);
+    }
+
+    /* Closed — LAST so it always overrides other states during blink */
+    .eyelid-top.closed {
+      transform: translateY(0%) rotate(0deg) !important;
+    }
+
+    .eyelid-bottom.closed {
+      transform: translateY(0%) rotate(0deg) !important;
+    }
+
+    /* ===== EYEBALL ANIMATIONS ===== */
+    @keyframes scan-eyeball {
+      0% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(20px);
+      }
+
+      40% {
+        transform: translateX(20px);
+      }
+
+      60% {
+        transform: translateX(-20px);
+      }
+
+      80% {
+        transform: translateX(-20px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes thinking-eyeball {
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      25% {
+        transform: translate(8px, -5px);
+      }
+
+      75% {
+        transform: translate(-5px, -3px);
+      }
+    }
+
+    .eyeball.scanning {
+      animation: scan-eyeball 3s ease-in-out infinite;
+    }
+
+    .eyeball.thinking {
+      animation: thinking-eyeball 2.5s ease-in-out infinite;
+    }
+
+    /* ===== EYELID HIDDEN (for happy) ===== */
+    .eyelid-top.hidden-up {
+      transform: translateY(-100%) rotate(0deg) !important;
+    }
+
+    /* ===== STAR SPARKLE PARTICLES ===== */
+    .star-particle {
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .star-particle svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .star-particle svg path {
+      fill: rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes sparkle {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+
+      20% {
+        opacity: 1;
+        transform: scale(1) rotate(20deg);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(0.8) rotate(40deg);
+      }
+
+      80% {
+        opacity: 1;
+        transform: scale(1.1) rotate(60deg);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0) rotate(80deg);
+      }
+    }
+
+    @keyframes sparkle-float {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg) translateY(0);
+      }
+
+      30% {
+        opacity: 1;
+        transform: scale(1.2) rotate(30deg) translateY(-5px);
+      }
+
+      70% {
+        opacity: 0.7;
+        transform: scale(0.9) rotate(50deg) translateY(-10px);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0) rotate(90deg) translateY(-15px);
+      }
+    }
+
+    .star-particle.sparkle-1 {
+      animation: sparkle 1.5s ease-in-out infinite;
+    }
+
+    .star-particle.sparkle-2 {
+      animation: sparkle-float 1.8s ease-in-out infinite 0.3s;
+    }
+
+    .star-particle.sparkle-3 {
+      animation: sparkle 1.2s ease-in-out infinite 0.6s;
+    }
+
+    .star-particle.sparkle-4 {
+      animation: sparkle-float 2s ease-in-out infinite 0.9s;
+    }
+
+    .star-particle.sparkle-5 {
+      animation: sparkle 1.6s ease-in-out infinite 0.2s;
+    }
+
+    .star-particle.sparkle-6 {
+      animation: sparkle-float 1.4s ease-in-out infinite 0.5s;
+    }
+
+    /* ===== BREATHING ===== */
+    @keyframes breathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+    }
+
+    .face-container.breathing {
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    .face-container {
+      transition: transform 0.5s ease-in-out;
+    }
+
+    /* ===== MOUTH ===== */
+    .mouth {
+      width: 120px;
+      height: 10px;
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      transition: all 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+      margin-top: 80px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Friendly smile for idle state — even-thickness arc */
+    .mouth.smiling {
+      width: 140px !important;
+      height: 140px !important;
+      background-color: transparent !important;
+      border: 7px solid #1a1a1a !important;
+      border-radius: 50% !important;
+      clip-path: inset(50% 0 0 0) !important;
+      box-shadow: none !important;
+      margin-top: 10px !important;
+    }
+  </style>
+</head>
+
+<body class="bg-white h-screen flex items-center justify-center">
+
+  <!-- Main Face Container -->
+  <div id="faceContainer"
+    class="face-container breathing relative w-full h-full flex flex-col items-center justify-center">
+
+    <!-- Eyes Container -->
+    <div class="flex items-center justify-center gap-64">
+
+      <!-- Left Eye -->
+      <div id="leftEye" class="eye-socket left-eye">
+        <div class="eyelid eyelid-top" id="leftEyelidTop"></div>
+        <div class="eyeball" id="leftEyeball">
+          <div class="iris" id="leftIris">
+            <div class="pupil" id="leftPupil"></div>
+          </div>
+          <div class="reflection"></div>
+          <div class="reflection-sm"></div>
+        </div>
+        <div class="eyelid eyelid-bottom" id="leftEyelidBottom"></div>
+      </div>
+
+      <!-- Right Eye -->
+      <div id="rightEye" class="eye-socket right-eye">
+        <div class="eyelid eyelid-top" id="rightEyelidTop"></div>
+        <div class="eyeball" id="rightEyeball">
+          <div class="iris" id="rightIris">
+            <div class="pupil" id="rightPupil"></div>
+          </div>
+          <div class="reflection"></div>
+          <div class="reflection-sm"></div>
+        </div>
+        <div class="eyelid eyelid-bottom" id="rightEyelidBottom"></div>
+      </div>
+
+    </div>
+
+    <!-- Mouth -->
+    <div id="mouth" class="mouth"></div>
+  </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION
+    // ==========================================
+    const CONFIG = {
+      timings: {
+        blinkDuration: 300,
+        minBlinkDelay: 3000,
+        maxBlinkDelay: 7000,
+        talkUpdateSpeed: 150,
+        transitions: {
+          default: 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+          talking: 'all 0.15s cubic-bezier(0.5, 0, 0.5, 1.5)'
+        }
+      },
+      sizes: {
+        mouth: {
+          default: { w: '120px', h: '10px' },
+          minWidth: 40,
+          maxWidth: 140,
+          minHeight: 10,
+          maxHeight: 70
+        }
+      }
+    };
+
+    // ==========================================
+    // STATE MANAGEMENT
+    // ==========================================
+    const State = {
+      currentExpression: 'idle',
+      intervals: {
+        talking: null,
+        blink: null
+      }
+    };
+
+    // ==========================================
+    // UI ELEMENTS
+    // ==========================================
+    const UI = {
+      // Eye sockets
+      leftEye: document.getElementById('leftEye'),
+      rightEye: document.getElementById('rightEye'),
+      // Eyelids
+      leftEyelidTop: document.getElementById('leftEyelidTop'),
+      leftEyelidBottom: document.getElementById('leftEyelidBottom'),
+      rightEyelidTop: document.getElementById('rightEyelidTop'),
+      rightEyelidBottom: document.getElementById('rightEyelidBottom'),
+      // Eyeballs
+      leftEyeball: document.getElementById('leftEyeball'),
+      rightEyeball: document.getElementById('rightEyeball'),
+      // Irises & Pupils
+      leftIris: document.getElementById('leftIris'),
+      rightIris: document.getElementById('rightIris'),
+      leftPupil: document.getElementById('leftPupil'),
+      rightPupil: document.getElementById('rightPupil'),
+      // Mouth & Face
+      mouth: document.getElementById('mouth'),
+      faceContainer: document.getElementById('faceContainer')
+    };
+
+    // Helper: get all eyelid tops/bottoms
+    const allEyelidTops = [UI.leftEyelidTop, UI.rightEyelidTop];
+    const allEyelidBottoms = [UI.leftEyelidBottom, UI.rightEyelidBottom];
+    const allEyelids = [...allEyelidTops, ...allEyelidBottoms];
+    const allEyeballs = [UI.leftEyeball, UI.rightEyeball];
+    const allIrises = [UI.leftIris, UI.rightIris];
+    const allPupils = [UI.leftPupil, UI.rightPupil];
+
+    // ==========================================
+    // CONTROLLERS
+    // ==========================================
+
+    const MouthController = {
+      randomize() {
+        const { minWidth, maxWidth, minHeight, maxHeight } = CONFIG.sizes.mouth;
+        const width = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+        const height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+        UI.mouth.style.width = `${width}px`;
+        UI.mouth.style.height = `${height}px`;
+        UI.mouth.style.borderRadius = '999px';
+      },
+
+      startTalking() {
+        if (State.intervals.talking) return;
+
+        UI.mouth.classList.add('talking');
+        UI.mouth.style.transition = CONFIG.timings.transitions.talking;
+
+        this.randomize();
+        State.intervals.talking = setInterval(() => this.randomize(), CONFIG.timings.talkUpdateSpeed);
+      },
+
+      stopTalking() {
+        if (State.intervals.talking) {
+          clearInterval(State.intervals.talking);
+          State.intervals.talking = null;
+        }
+
+        // Disable transition to prevent ugly intermediate shapes
+        UI.mouth.style.transition = 'none';
+        UI.mouth.classList.remove('talking');
+        UI.mouth.classList.remove('smiling');
+
+        // Reset to default
+        const { default: defaultSize } = CONFIG.sizes.mouth;
+        UI.mouth.style.width = defaultSize.w;
+        UI.mouth.style.height = defaultSize.h;
+        UI.mouth.style.borderRadius = '999px';
+        UI.mouth.style.backgroundColor = '';
+        UI.mouth.style.border = '';
+        UI.mouth.style.clipPath = '';
+        UI.mouth.style.marginTop = '';
+
+        // Force reflow then restore transition
+        void UI.mouth.offsetHeight;
+        UI.mouth.style.transition = '';
+      }
+    };
+
+    const EyeController = {
+      // Reset all eyelid and eyeball states
+      resetAll() {
+        // Clear eyelid states
+        const lidStates = ['closed', 'squint', 'droop', 'droop-straight', 'wide', 'happy-anim', 'hidden-up'];
+        allEyelids.forEach(lid => {
+          lidStates.forEach(s => lid.classList.remove(s));
+        });
+
+        // Clear eyeball animations
+        allEyeballs.forEach(eb => {
+          eb.classList.remove('scanning', 'thinking');
+          eb.style.transform = '';
+        });
+
+        // Reset pupil size
+        allPupils.forEach(p => {
+          p.style.width = '';
+          p.style.height = '';
+        });
+
+        // Reset iris
+        allIrises.forEach(iris => {
+          iris.style.transform = 'translate(-50%, -50%)';
+          iris.style.width = '';
+          iris.style.height = '';
+        });
+
+        // Remove star particles
+        document.querySelectorAll('.star-particle').forEach(s => s.remove());
+      },
+
+      // Blink via eyelids
+      blink() {
+        // Close eyelids
+        allEyelidTops.forEach(lid => lid.classList.add('closed'));
+        allEyelidBottoms.forEach(lid => lid.classList.add('closed'));
+
+        setTimeout(() => {
+          allEyelidTops.forEach(lid => lid.classList.remove('closed'));
+          allEyelidBottoms.forEach(lid => lid.classList.remove('closed'));
+        }, CONFIG.timings.blinkDuration);
+      },
+
+      startRandomBlinking() {
+        const { minBlinkDelay, maxBlinkDelay } = CONFIG.timings;
+        const delay = Math.random() * (maxBlinkDelay - minBlinkDelay) + minBlinkDelay;
+
+        setTimeout(() => {
+          if (State.currentExpression !== 'scanning') {
+            this.blink();
+          }
+          this.startRandomBlinking();
+        }, delay);
+      },
+
+      // Expression-specific eye setups
+      setIdle() {
+        // Eyelids at default open position — already reset
+      },
+
+      setHappy() {
+        // Hide top eyelids completely
+        allEyelidTops.forEach(lid => {
+          lid.classList.add('hidden-up');
+        });
+        // Bottom eyelids squint up
+        allEyelidBottoms.forEach(lid => lid.classList.add('squint'));
+        // Add sparkle stars to each eyeball
+        this.addStarParticles();
+      },
+
+      addStarParticles() {
+        const starSVG = `<svg viewBox="0 0 24 24"><path d="M12 0l3.09 6.26L22 7.27l-5 4.87L18.18 19 12 15.77 5.82 19 7 12.14l-5-4.87 6.91-1.01z"/></svg>`;
+        const positions = [
+          { top: '12%', left: '15%', size: 18, cls: 'sparkle-1' },
+          { top: '25%', left: '65%', size: 14, cls: 'sparkle-2' },
+          { top: '55%', left: '20%', size: 11, cls: 'sparkle-3' },
+          { top: '60%', left: '70%', size: 16, cls: 'sparkle-4' },
+          { top: '35%', left: '40%', size: 10, cls: 'sparkle-5' },
+          { top: '75%', left: '50%', size: 13, cls: 'sparkle-6' },
+        ];
+
+        allEyeballs.forEach(eyeball => {
+          positions.forEach(p => {
+            const star = document.createElement('div');
+            star.className = `star-particle ${p.cls}`;
+            star.style.top = p.top;
+            star.style.left = p.left;
+            star.style.width = `${p.size}px`;
+            star.style.height = `${p.size}px`;
+            star.innerHTML = starSVG;
+            eyeball.appendChild(star);
+          });
+        });
+      },
+
+      setThinking() {
+        // Eyeballs drift slightly
+        allEyeballs.forEach(eb => eb.classList.add('thinking'));
+        // Left eyelid droops straight, right eyelid droops with angle
+        UI.leftEyelidTop.classList.add('droop-straight');
+        UI.rightEyelidTop.classList.add('droop');
+      },
+
+      setScanning() {
+        // Eyeballs scan left-right
+        allEyeballs.forEach(eb => eb.classList.add('scanning'));
+      },
+
+      setTalking() {
+        // Eyes stay open and attentive, slight pupil dilation
+        allPupils.forEach(p => {
+          p.style.width = '40%';
+          p.style.height = '40%';
+        });
+      },
+
+      setSurprised() {
+        // Eyelids pull back fully, pupil dilates
+        allEyelidTops.forEach(lid => lid.classList.add('wide'));
+        allEyelidBottoms.forEach(lid => lid.classList.add('wide'));
+        allPupils.forEach(p => {
+          p.style.width = '45%';
+          p.style.height = '45%';
+        });
+        allIrises.forEach(iris => {
+          iris.style.width = '75%';
+          iris.style.height = '75%';
+        });
+      }
+    };
+
+    // ==========================================
+    // MAIN ROBOT CONTROLLER
+    // ==========================================
+    const RobotFace = {
+      init() {
+        this.setExpression('idle');
+        EyeController.startRandomBlinking();
+        this.exposeAPI();
+        console.log('BayMax Face UI Initialized');
+        console.log('Available expressions: idle, happy, thinking, scanning, talking, surprised');
+      },
+
+      setExpression(expression) {
+        // Reset everything first
+        EyeController.resetAll();
+        UI.faceContainer.className = 'face-container breathing relative w-full h-full flex flex-col items-center justify-center';
+
+        State.currentExpression = expression;
+
+        // Handle Mouth State
+        if (expression === 'talking') {
+          MouthController.startTalking();
+        } else {
+          MouthController.stopTalking();
+        }
+
+        // Apply Expression Logic
+        switch (expression) {
+          case 'idle':
+            EyeController.setIdle();
+            // Friendly smile in idle
+            UI.mouth.style.transition = 'none';
+            UI.mouth.classList.add('smiling');
+            UI.mouth.style.width = '';
+            UI.mouth.style.height = '';
+            UI.mouth.style.backgroundColor = '';
+            UI.mouth.style.borderRadius = '';
+            UI.mouth.style.border = '';
+            void UI.mouth.offsetHeight;
+            UI.mouth.style.transition = '';
+            break;
+
+          case 'happy':
+            EyeController.setHappy();
+            // Also show smile for happy
+            UI.mouth.style.transition = 'none';
+            UI.mouth.classList.add('smiling');
+            UI.mouth.style.width = '';
+            UI.mouth.style.height = '';
+            UI.mouth.style.backgroundColor = '';
+            UI.mouth.style.borderRadius = '';
+            UI.mouth.style.border = '';
+            void UI.mouth.offsetHeight;
+            UI.mouth.style.transition = '';
+            break;
+
+          case 'thinking':
+            EyeController.setThinking();
+            break;
+
+          case 'scanning':
+            EyeController.setScanning();
+            break;
+
+          case 'talking':
+            EyeController.setTalking();
+            break;
+
+          case 'surprised':
+            EyeController.setSurprised();
+            // Set circular shape instantly — no transition on borderRadius
+            UI.mouth.style.transition = 'none';
+            UI.mouth.style.borderRadius = '50%';
+            UI.mouth.style.backgroundColor = '#1a1a1a';
+            UI.mouth.style.border = '';
+            UI.mouth.style.clipPath = '';
+            void UI.mouth.offsetHeight; // commit the circle shape
+            // Now smoothly animate size into the O
+            UI.mouth.style.transition = 'width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            UI.mouth.style.width = '60px';
+            UI.mouth.style.height = '60px';
+            break;
+        }
+      },
+
+      exposeAPI() {
+        window.robotFace = {
+          setExpression: (expr) => this.setExpression(expr),
+          blink: () => EyeController.blink(),
+          setStatus: (text) => console.log('Status: ' + text)
+        };
+
+        window.setExpression = (expr) => this.setExpression(expr);
+        window.blink = () => EyeController.blink();
+      }
+    };
+
+    // Start Controller
+    RobotFace.init();
+  </script>
+</body>
+
+</html>
