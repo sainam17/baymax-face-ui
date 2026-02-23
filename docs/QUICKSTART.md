@@ -12,7 +12,7 @@ node --version  # Should be v16 or higher
 ### Step 2: Navigate to project and install dependencies
 ```bash
 cd baymax-face-ui
-./setup.sh
+./scripts/setup.sh
 ```
 
 Or manually:
@@ -85,18 +85,18 @@ Exec=/usr/bin/npm start --prefix /path/to/baymax-face-ui
 ## Next Steps
 
 ### 1. For ROS2 Integration:
-- See `ros2-bridge.js` for example code
+- See `integrations/ros2-bridge.js` for example code
 - Install: `npm install rclnodejs --break-system-packages`
 - Uncomment and configure ROS2 topics
 
 ### 2. For LLM Integration:
-- See `llm-integration.js` for example code
+- See `integrations/llm-integration.js` for example code
 - Integrate with your speech recognition
 - Connect to your LLM service
 - Use IPC events to control face
 
 ### 3. Customize the face:
-- Edit `index.html` to change colors, size, or animations
+- Edit `src/index.html` to change colors, size, or animations
 - Modify eye shapes and movements
 - Add new expressions
 
@@ -110,7 +110,7 @@ npm install
 ```
 
 **Problem: Screen is too small/large**
-- Edit face size in `index.html` (search for `w-96 h-96`)
+- Edit face size in `src/index.html` (search for `w-96 h-96`)
 - Adjust to `w-80 h-80` (smaller) or `w-[500px] h-[500px]` (larger)
 
 **Problem: Can't exit fullscreen**
@@ -134,7 +134,7 @@ window.robotFace.blink();
 ```
 
 ### Hide control panel for production:
-Comment out the control panel div in `index.html` (line ~85-105)
+Comment out the control panel div in `src/index.html`
 
 ### Test different expressions timing:
 ```javascript
@@ -150,13 +150,24 @@ setTimeout(() => window.robotFace.setExpression('idle'), 4000);
 
 ```
 baymax-face-ui/
-├── main.js              # Electron app setup
-├── index.html           # Face UI (edit for design)
-├── package.json         # Dependencies
-├── ros2-bridge.js       # ROS2 example (future)
-├── llm-integration.js   # LLM example (future)
-├── setup.sh             # Installation script
-└── README.md            # Full documentation
+├── src/
+│   ├── main.js              # Electron app setup
+│   ├── index.html           # Face UI (edit for design)
+│   └── control.html         # Control panel
+├── integrations/
+│   ├── ros2-bridge.js       # ROS2 example (future)
+│   └── llm-integration.js   # LLM example (future)
+├── scripts/
+│   ├── install.sh           # Full installation script
+│   ├── setup.sh             # Quick setup script
+│   └── check-system.sh      # System diagnostics
+├── docs/
+│   ├── INSTALLATION.md      # Detailed install guide
+│   ├── QUICKSTART.md        # This file
+│   └── COMMANDS.md          # Command reference
+├── package.json             # Dependencies
+├── LICENSE                  # MIT license
+└── README.md                # Full documentation
 ```
 
 ---

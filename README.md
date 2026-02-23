@@ -37,10 +37,25 @@ npm start
 
 ```
 baymax-face-ui/
-├── main.js           # Electron main process
-├── index.html        # Face UI with animations
-├── package.json      # Project dependencies
-└── README.md         # This file
+├── src/
+│   ├── main.js              # Electron main process
+│   ├── index.html           # Face UI with animations
+│   └── control.html         # Control panel
+├── integrations/
+│   ├── llm-integration.js   # LLM integration example
+│   └── ros2-bridge.js       # ROS2 bridge example
+├── scripts/
+│   ├── install.sh           # Full installation script
+│   ├── setup.sh             # Quick setup script
+│   └── check-system.sh      # System diagnostics
+├── docs/
+│   ├── INSTALLATION.md      # Detailed install guide
+│   ├── QUICKSTART.md        # Quick start reference
+│   └── COMMANDS.md          # Command reference
+├── .gitignore
+├── LICENSE
+├── package.json             # Project dependencies
+└── README.md                # This file
 ```
 
 ## Usage
@@ -86,11 +101,11 @@ window.robotFace.setStatus('Listening...');
 To integrate with ROS2:
 
 1. Use Electron's IPC (Inter-Process Communication) to communicate between main and renderer processes
-2. Create a Node.js ROS2 bridge in `main.js` using `rclnodejs`
-3. Subscribe to ROS2 topics and send updates to the renderer:
+2. Create a Node.js ROS2 bridge in `src/main.js` using `rclnodejs`
+3. Subscribe to ROS2 topics and send updates to the renderer (see `integrations/ros2-bridge.js`):
 
 ```javascript
-// Example in main.js
+// Example in src/main.js
 const rclnodejs = require('rclnodejs');
 
 // Initialize ROS2 node
@@ -108,7 +123,7 @@ rclnodejs.init().then(() => {
   );
 });
 
-// In renderer (index.html), add IPC listener
+// In renderer (src/index.html), add IPC listener
 const { ipcRenderer } = require('electron');
 ipcRenderer.on('change-expression', (event, expression) => {
   window.robotFace.setExpression(expression);
@@ -141,7 +156,7 @@ window.robotFace.setExpression('talking');
 
 ### Adjusting for Different Screen Sizes
 
-Edit the face size in `index.html`:
+Edit the face size in `src/index.html`:
 
 ```html
 <!-- Change w-96 h-96 to your preferred size -->
@@ -152,7 +167,7 @@ For 7-inch displays (typically 1024x600), the current size (384px) works well.
 
 ### Hiding the Control Panel
 
-Remove or comment out the control panel section in `index.html`:
+Remove or comment out the control panel section in `src/index.html`:
 
 ```html
 <!-- Control Panel (for testing - can be hidden in production) -->
@@ -161,7 +176,7 @@ Remove or comment out the control panel section in `index.html`:
 
 ### Adding New Expressions
 
-1. Add a new animation in the `<style>` section
+1. Add a new animation in the `<style>` section of `src/index.html`
 2. Create a new case in the `setExpression()` function
 3. Define eye size and animation class
 
@@ -178,7 +193,7 @@ Remove or comment out the control panel section in `index.html`:
 - Ensure all file paths are correct
 
 **App won't go fullscreen:**
-- Check `main.js` fullscreen setting
+- Check `src/main.js` fullscreen setting
 - Verify display resolution matches window size
 
 **Animations are choppy:**

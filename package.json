@@ -2,12 +2,17 @@
   "name": "baymax-face-ui",
   "version": "1.0.0",
   "description": "BayMax-inspired robot face UI for capstone project",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --enable-logging"
   },
-  "keywords": ["electron", "robot", "ui", "baymax"],
+  "keywords": [
+    "electron",
+    "robot",
+    "ui",
+    "baymax"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {

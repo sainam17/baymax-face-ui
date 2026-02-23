@@ -17,8 +17,8 @@ Simply run the installation script:
 
 ```bash
 cd baymax-face-ui
-chmod +x install.sh
-./install.sh
+chmod +x scripts/install.sh scripts/check-system.sh
+./scripts/install.sh
 ```
 
 The script will automatically install everything you need.
@@ -206,7 +206,7 @@ xvfb-run npm start
 ### Problem: App crashes on Raspberry Pi
 
 **Reduce memory usage:**
-Edit `main.js` and add:
+Edit `src/main.js` and add:
 ```javascript
 app.commandLine.appendSwitch('disable-gpu');
 app.commandLine.appendSwitch('disable-software-rasterizer');
@@ -358,9 +358,9 @@ After installation:
 
 1. ✅ Test the app: `npm start`
 2. ✅ Read README.md for full documentation
-3. ✅ Check QUICKSTART.md for usage examples
-4. ✅ Explore ros2-bridge.js for ROS2 integration
-5. ✅ Review llm-integration.js for LLM integration
+3. ✅ Check docs/QUICKSTART.md for usage examples
+4. ✅ Explore integrations/ros2-bridge.js for ROS2 integration
+5. ✅ Review integrations/llm-integration.js for LLM integration
 
 ---
 

@@ -27,7 +27,7 @@ function createWindows() {
     backgroundColor: '#ffffff'
   });
 
-  faceWindow.loadFile('index.html');
+  faceWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Hide cursor on robot display
   faceWindow.webContents.on('did-finish-load', () => {
@@ -55,7 +55,7 @@ function createWindows() {
     title: 'BayMax Control Panel'
   });
 
-  controlWindow.loadFile('control.html');
+  controlWindow.loadFile(path.join(__dirname, 'control.html'));
 
   controlWindow.on('closed', function () {
     controlWindow = null;

@@ -6,12 +6,12 @@ Quick reference for all installation and usage commands.
 
 ### Check System Requirements
 ```bash
-./check-system.sh
+./scripts/check-system.sh
 ```
 
 ### Automatic Installation
 ```bash
-./install.sh
+./scripts/install.sh
 ```
 
 ### Manual Installation - Node.js
@@ -264,16 +264,17 @@ pkill electron
 
 | File | Purpose |
 |------|---------|
-| `main.js` | Electron main process |
-| `index.html` | UI and animations |
+| `src/main.js` | Electron main process |
+| `src/index.html` | UI and animations |
+| `src/control.html` | Control panel |
 | `package.json` | Dependencies |
-| `install.sh` | Auto-install script |
-| `check-system.sh` | System diagnostics |
-| `ros2-bridge.js` | ROS2 integration template |
-| `llm-integration.js` | LLM integration template |
+| `scripts/install.sh` | Auto-install script |
+| `scripts/check-system.sh` | System diagnostics |
+| `integrations/ros2-bridge.js` | ROS2 integration template |
+| `integrations/llm-integration.js` | LLM integration template |
 | `README.md` | Full documentation |
-| `INSTALLATION.md` | Detailed install guide |
-| `QUICKSTART.md` | Quick start guide |
+| `docs/INSTALLATION.md` | Detailed install guide |
+| `docs/QUICKSTART.md` | Quick start guide |
 
 ---
 
@@ -294,7 +295,7 @@ pkill electron
 - [ ] Install system dependencies
 - [ ] Run `npm install`
 - [ ] Test with `npm start`
-- [ ] Customize expressions in `index.html`
+- [ ] Edit `src/index.html` to change colors, size, or animations
 - [ ] Set up auto-start (optional)
 - [ ] Integrate with ROS2 (optional)
 - [ ] Integrate with LLM (optional)
@@ -305,8 +306,8 @@ pkill electron
 
 **Documentation:**
 - README.md - Complete guide
-- INSTALLATION.md - Detailed installation
-- QUICKSTART.md - Quick reference
+- docs/INSTALLATION.md - Detailed installation
+- docs/QUICKSTART.md - Quick reference
 
 **Online Resources:**
 - Electron Docs: https://www.electronjs.org/docs
@@ -318,7 +319,7 @@ pkill electron
 node --version
 npm --version
 npm list --depth=0
-./check-system.sh
+./scripts/check-system.sh
 ```
 
 ---
