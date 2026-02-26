@@ -398,6 +398,98 @@
       animation: sparkle-float 1.4s ease-in-out infinite 0.5s;
     }
 
+    /* ===== WARNING / BATTERY LOW ===== */
+    .battery-warning {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .battery-warning.active {
+      opacity: 1;
+      visibility: visible;
+      animation: battery-blink 2.5s ease-in-out infinite;
+    }
+
+    .battery-warning svg {
+      width: 200px;
+      height: 200px;
+      filter: drop-shadow(0 0 15px rgba(255, 30, 30, 0.8)) drop-shadow(0 0 40px rgba(255, 30, 30, 0.5)) drop-shadow(0 0 80px rgba(255, 0, 0, 0.3));
+      animation: battery-glow 2.5s ease-in-out infinite;
+    }
+
+    .battery-warning svg .battery-body {
+      fill: none;
+      stroke: #ff1e1e;
+      stroke-width: 2;
+    }
+
+    .battery-warning svg .battery-level {
+      fill: #ff1e1e;
+    }
+
+    .battery-warning svg .battery-cap {
+      fill: #ff1e1e;
+    }
+
+    .battery-warning-text {
+      color: #ff1e1e;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 30, 30, 0.8),
+        0 0 30px rgba(255, 30, 30, 0.4);
+    }
+
+    @keyframes battery-blink {
+      0% {
+        opacity: 1;
+      }
+
+      40% {
+        opacity: 0.3;
+      }
+
+      60% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes battery-glow {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 12px rgba(255, 30, 30, 0.6)) drop-shadow(0 0 30px rgba(255, 30, 30, 0.35)) drop-shadow(0 0 60px rgba(255, 0, 0, 0.2));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 30px rgba(255, 30, 30, 1)) drop-shadow(0 0 70px rgba(255, 30, 30, 0.7)) drop-shadow(0 0 130px rgba(255, 0, 0, 0.5));
+      }
+    }
+
+    .eye-socket.warning-glow {
+      box-shadow:
+        inset 0 0 20px rgba(255, 30, 30, 0.15),
+        0 0 30px rgba(255, 30, 30, 0.2),
+        0 0 60px rgba(255, 0, 0, 0.1);
+    }
+
     /* ===== BREATHING ===== */
     @keyframes breathe {
 
@@ -417,6 +509,19 @@
 
     .face-container {
       transition: transform 0.4s ease-in-out;
+    }
+
+    /* Smooth fade for eyes and mouth during warning */
+    .eyes-container-wrap {
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .eyes-container-wrap.fade-out {
+      opacity: 0;
+    }
+
+    .mouth-container.fade-out {
+      opacity: 0;
     }
 
     /* ===== MOUTH CONTAINER ===== */
@@ -657,7 +762,7 @@
     class="face-container breathing relative w-full h-full flex flex-col items-center justify-center">
 
     <!-- Eyes Container -->
-    <div class="flex items-center justify-center gap-64">
+    <div class="eyes-container-wrap flex items-center justify-center gap-64">
 
       <!-- Left Eye -->
       <div id="leftEye" class="eye-socket left-eye">
@@ -681,6 +786,19 @@
         <div class="eyelid eyelid-bottom" id="rightEyelidBottom"></div>
       </div>
 
+    </div>
+
+    <!-- Battery Warning Overlay -->
+    <div id="batteryWarning" class="battery-warning">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <!-- Battery body -->
+        <rect class="battery-body" x="12" y="16" width="36" height="32" rx="4" ry="4" />
+        <!-- Battery cap (positive terminal) -->
+        <rect class="battery-cap" x="48" y="26" width="6" height="12" rx="2" ry="2" />
+        <!-- Low charge level bar -->
+        <rect class="battery-level" x="16" y="34" width="8" height="10" rx="1" ry="1" />
+      </svg>
+      <span class="battery-warning-text">LOW BATTERY</span>
     </div>
 
     <!-- Mouth -->
@@ -829,6 +947,11 @@
 
       setSurprised() {
         UI.mouthContainer.classList.add('surprised');
+      },
+
+      setWarning() {
+        // Flat worried mouth — wider than think, flat line
+        UI.mouthContainer.classList.add('think');
       }
     };
 
@@ -840,6 +963,14 @@
         allEyelids.forEach(lid => {
           lidStates.forEach(s => lid.classList.remove(s));
         });
+
+        // Clear warning glow
+        [UI.leftEye, UI.rightEye].forEach(eye => {
+          eye.classList.remove('warning-glow');
+        });
+
+        // Hide battery warning
+        WarningController.hide();
 
         // Clear eyeball states
         allEyeballs.forEach(eb => {
@@ -972,6 +1103,15 @@
         });
       },
 
+      setWarning() {
+        // Slightly narrowed lids — alert look
+        allEyelidTops.forEach(lid => lid.classList.add('droop-straight'));
+        // Red glow on eye sockets
+        [UI.leftEye, UI.rightEye].forEach(eye => {
+          eye.classList.add('warning-glow');
+        });
+      },
+
       // Head-tracking eye movement
       _eyeReturnTimeout: null,
       moveByDirection(direction) {
@@ -1012,6 +1152,47 @@
     };
 
     // ==========================================
+    // WARNING / BATTERY CONTROLLER
+    // ==========================================
+    const WarningController = {
+      el: document.getElementById('batteryWarning'),
+      eyesWrap: document.querySelector('.eyes-container-wrap'),
+      _showTimeout: null,
+      _hideTimeout: null,
+
+      show() {
+        // Cancel any pending hide restoration
+        if (this._hideTimeout) {
+          clearTimeout(this._hideTimeout);
+          this._hideTimeout = null;
+        }
+        // Fade out eyes and mouth first
+        this.eyesWrap.classList.add('fade-out');
+        UI.mouthContainer.classList.add('fade-out');
+        // Then show battery icon after fade completes
+        this._showTimeout = setTimeout(() => {
+          this.el.classList.add('active');
+          this._showTimeout = null;
+        }, 500);
+      },
+
+      hide() {
+        // Cancel any pending show
+        if (this._showTimeout) {
+          clearTimeout(this._showTimeout);
+          this._showTimeout = null;
+        }
+        this.el.classList.remove('active');
+        // Fade eyes and mouth back in after battery fades out
+        this._hideTimeout = setTimeout(() => {
+          this.eyesWrap.classList.remove('fade-out');
+          UI.mouthContainer.classList.remove('fade-out');
+          this._hideTimeout = null;
+        }, 400);
+      }
+    };
+
+    // ==========================================
     // MAIN ROBOT CONTROLLER
     // ==========================================
     const RobotFace = {
@@ -1020,7 +1201,7 @@
         EyeController.startRandomBlinking();
         this.exposeAPI();
         console.log('BayMax Face UI Initialized');
-        console.log('Available expressions: idle, happy, thinking, scanning, talking, surprised');
+        console.log('Available expressions: idle, happy, thinking, scanning, talking, surprised, warning');
       },
 
       setExpression(expression) {
@@ -1067,6 +1248,12 @@
           case 'surprised':
             EyeController.setSurprised();
             MouthController.setSurprised();
+            break;
+
+          case 'warning':
+            EyeController.setWarning();
+            MouthController.setWarning();
+            WarningController.show();
             break;
         }
       },
