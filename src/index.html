@@ -408,7 +408,7 @@
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+      transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -418,14 +418,14 @@
     .battery-warning.active {
       opacity: 1;
       visibility: visible;
-      animation: battery-blink 2.5s ease-in-out infinite;
+      animation: battery-blink 1.5s ease-in-out infinite;
     }
 
     .battery-warning svg {
-      width: 200px;
-      height: 200px;
+      width: 250px;
+      height: 250px;
       filter: drop-shadow(0 0 15px rgba(255, 30, 30, 0.8)) drop-shadow(0 0 40px rgba(255, 30, 30, 0.5)) drop-shadow(0 0 80px rgba(255, 0, 0, 0.3));
-      animation: battery-glow 2.5s ease-in-out infinite;
+      animation: battery-glow 1.5s ease-in-out infinite;
     }
 
     .battery-warning svg .battery-body {
@@ -454,20 +454,14 @@
     }
 
     @keyframes battery-blink {
-      0% {
-        opacity: 1;
-      }
 
-      40% {
-        opacity: 0.3;
-      }
-
-      60% {
-        opacity: 0.3;
-      }
-
+      0%,
       100% {
         opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
       }
     }
 
@@ -511,9 +505,9 @@
       transition: transform 0.4s ease-in-out;
     }
 
-    /* Smooth fade for eyes and mouth during warning */
+    /* Instant hide for eyes and mouth during warning */
     .eyes-container-wrap {
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0s;
     }
 
     .eyes-container-wrap.fade-out {
@@ -522,6 +516,7 @@
 
     .mouth-container.fade-out {
       opacity: 0;
+      transition: opacity 0s !important;
     }
 
     /* ===== MOUTH CONTAINER ===== */
@@ -790,13 +785,13 @@
 
     <!-- Battery Warning Overlay -->
     <div id="batteryWarning" class="battery-warning">
-      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg">
         <!-- Battery body -->
-        <rect class="battery-body" x="12" y="16" width="36" height="32" rx="4" ry="4" />
+        <rect class="battery-body" x="8" y="14" width="48" height="36" rx="4" ry="4" />
         <!-- Battery cap (positive terminal) -->
-        <rect class="battery-cap" x="48" y="26" width="6" height="12" rx="2" ry="2" />
-        <!-- Low charge level bar -->
-        <rect class="battery-level" x="16" y="34" width="8" height="10" rx="1" ry="1" />
+        <rect class="battery-cap" x="56" y="23" width="9" height="18" rx="2" ry="2" />
+        <!-- Low charge level bar (full vertical) -->
+        <rect class="battery-level" x="13" y="18" width="9" height="28" rx="1" ry="1" />
       </svg>
       <span class="battery-warning-text">LOW BATTERY</span>
     </div>
@@ -1166,14 +1161,10 @@
           clearTimeout(this._hideTimeout);
           this._hideTimeout = null;
         }
-        // Fade out eyes and mouth first
+        // Instantly hide eyes and mouth, show battery
         this.eyesWrap.classList.add('fade-out');
         UI.mouthContainer.classList.add('fade-out');
-        // Then show battery icon after fade completes
-        this._showTimeout = setTimeout(() => {
-          this.el.classList.add('active');
-          this._showTimeout = null;
-        }, 500);
+        this.el.classList.add('active');
       },
 
       hide() {
@@ -1188,7 +1179,7 @@
           this.eyesWrap.classList.remove('fade-out');
           UI.mouthContainer.classList.remove('fade-out');
           this._hideTimeout = null;
-        }, 400);
+        }, 200);
       }
     };
 
