@@ -43,7 +43,7 @@ function createWindows() {
     x: primaryDisplay.bounds.x + Math.round((primaryDisplay.bounds.width - 500) / 2),
     y: primaryDisplay.bounds.y + Math.round((primaryDisplay.bounds.height - 400) / 2),
     width: 500,
-    height: 400,
+    height: 600,
     frame: true,
     resizable: true,
     webPreferences: {
@@ -71,6 +71,12 @@ function createWindows() {
   ipcMain.on('blink', () => {
     if (faceWindow && !faceWindow.isDestroyed()) {
       faceWindow.webContents.executeJavaScript(`blink()`);
+    }
+  });
+
+  ipcMain.on('head-direction', (event, direction) => {
+    if (faceWindow && !faceWindow.isDestroyed()) {
+      faceWindow.webContents.executeJavaScript(`moveEyes('${direction}')`);
     }
   });
 }
