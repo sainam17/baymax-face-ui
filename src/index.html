@@ -747,6 +747,368 @@
       height: 45%;
       border-radius: 50%;
     }
+
+    /* ===== DEV SCREEN OVERLAY ===== */
+    .dev-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #0a0e1a;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-family: 'Segoe UI', 'Roboto', monospace;
+      color: #e0e6f0;
+      overflow: hidden;
+    }
+
+    .dev-screen.active {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+    }
+
+    .dev-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, #0f1524 0%, #141c30 100%);
+      border-bottom: 1px solid rgba(0, 200, 255, 0.15);
+    }
+
+    .dev-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #00d4ff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 0;
+      text-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+    }
+
+    .dev-exit-btn {
+      padding: 8px 22px;
+      background: linear-gradient(135deg, #ff3366, #ff1a4a);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .dev-exit-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255, 51, 102, 0.5);
+    }
+
+    .dev-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Compact Status Bar — always visible */
+    .dev-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #0d1320, #111827);
+      border-bottom: 1px solid rgba(0, 200, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .status-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: #0a0e1a;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 200, 255, 0.08);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status-chip-label {
+      color: #4a5e7e;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+
+    .status-chip-value {
+      font-weight: 700;
+      color: #00d4ff;
+    }
+
+    .status-chip-value.ok { color: #00ff88; }
+    .status-chip-value.warn { color: #ffaa00; }
+    .status-chip-value.error { color: #ff3366; }
+
+    /* Tab Navigation */
+    .dev-tab-nav {
+      display: flex;
+      gap: 8px;
+      padding: 14px 24px;
+      flex-shrink: 0;
+    }
+
+    .dev-tab-btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid rgba(0, 200, 255, 0.12);
+      border-radius: 12px;
+      background: linear-gradient(145deg, #111827, #0d1320);
+      color: #6b7fa3;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .dev-tab-btn:hover {
+      border-color: rgba(0, 200, 255, 0.3);
+      color: #a0b8d8;
+      background: linear-gradient(145deg, #151d35, #111827);
+    }
+
+    .dev-tab-btn.active {
+      border-color: #00d4ff;
+      color: #00d4ff;
+      background: linear-gradient(145deg, #0d2040, #0a1830);
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.12), inset 0 0 20px rgba(0, 200, 255, 0.03);
+    }
+
+    /* Tab Content */
+    .dev-tab-content {
+      flex: 1;
+      padding: 0 24px 24px;
+      min-height: 0;
+      display: none;
+    }
+
+    .dev-tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dev-panel {
+      background: linear-gradient(145deg, #111827 0%, #0d1320 100%);
+      border: 1px solid rgba(0, 200, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .dev-panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #00d4ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+    }
+
+    /* Battery Panel */
+    .battery-display {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .battery-percent {
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #00ff88, #00d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: none;
+    }
+
+    .battery-percent.low {
+      background: linear-gradient(135deg, #ff3366, #ff6633);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .battery-bar-outer {
+      width: 80%;
+      height: 18px;
+      background: #1a2236;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 200, 255, 0.15);
+      overflow: hidden;
+    }
+
+    .battery-bar-inner {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00ff88, #00d4ff);
+      transition: width 0.5s ease, background 0.5s ease;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .battery-bar-inner.low {
+      background: linear-gradient(90deg, #ff3366, #ff6633);
+      box-shadow: 0 0 10px rgba(255, 51, 102, 0.3);
+    }
+
+    .battery-label {
+      font-size: 14px;
+      color: #6b7fa3;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Map Panel */
+    .map-area {
+      flex: 1;
+      background: #080c16;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 200, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 200, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .map-robot-dot {
+      width: 14px;
+      height: 14px;
+      background: #00d4ff;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.6), 0 0 30px rgba(0, 212, 255, 0.2);
+      z-index: 1;
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    .map-placeholder-text {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      font-size: 11px;
+      color: #2a3a54;
+      font-style: italic;
+    }
+
+    /* Teleop Panel */
+    .teleop-grid {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .teleop-keys {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: fit-content;
+    }
+
+    .teleop-btn {
+      width: 70px;
+      height: 70px;
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      border-radius: 12px;
+      background: linear-gradient(145deg, #141c30, #0f1524);
+      color: #a0b4d0;
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .teleop-btn:hover {
+      background: linear-gradient(145deg, #1a2540, #151d35);
+      border-color: rgba(0, 200, 255, 0.4);
+      color: #00d4ff;
+      box-shadow: 0 0 15px rgba(0, 200, 255, 0.15);
+    }
+
+    .teleop-btn:active, .teleop-btn.pressed {
+      background: linear-gradient(145deg, #00d4ff, #0099cc);
+      color: #0a0e1a;
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.4);
+    }
+
+    .teleop-btn.stop-btn {
+      border-color: rgba(255, 51, 102, 0.3);
+    }
+
+    .teleop-btn.stop-btn:hover {
+      border-color: rgba(255, 51, 102, 0.6);
+      color: #ff3366;
+      box-shadow: 0 0 15px rgba(255, 51, 102, 0.15);
+    }
+
+    .teleop-btn.stop-btn:active, .teleop-btn.stop-btn.pressed {
+      background: linear-gradient(145deg, #ff3366, #cc1a4a);
+      color: white;
+      border-color: #ff3366;
+    }
+
+    .teleop-btn.empty {
+      visibility: hidden;
+    }
+
+    .teleop-hint {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11px;
+      color: #3a4e6e;
+    }
+
+    /* Teleop enlarged for full tab view */
+    .dev-tab-content .teleop-btn {
+      width: 90px;
+      height: 90px;
+      font-size: 26px;
+    }
   </style>
 </head>
 
@@ -801,6 +1163,96 @@
       <div id="mouthOuter" class="mouth-outer">
         <div id="mouthInner" class="mouth-inner">
           <div id="mouthCore" class="mouth-core"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dev Screen Overlay -->
+  <div id="devScreen" class="dev-screen">
+    <div class="dev-header">
+      <h1>⚙ Dev Console</h1>
+      <button id="devExitBtn" class="dev-exit-btn">✕ Exit</button>
+    </div>
+
+    <!-- Compact Status Bar — always visible -->
+    <div class="dev-status-bar">
+      <div class="status-chip">
+        <span class="status-chip-label">🔋 Batt</span>
+        <span id="devStatusBatt" class="status-chip-value ok">100%</span>
+      </div>
+      <div class="status-chip">
+        <span class="status-chip-label">Expr</span>
+        <span id="devStatusExpr" class="status-chip-value">idle</span>
+      </div>
+      <div class="status-chip">
+        <span class="status-chip-label">WiFi</span>
+        <span id="devStatusWifi" class="status-chip-value ok">Connected</span>
+      </div>
+      <div class="status-chip">
+        <span class="status-chip-label">Motors</span>
+        <span id="devStatusMotors" class="status-chip-value ok">Ready</span>
+      </div>
+      <div class="status-chip">
+        <span class="status-chip-label">ROS</span>
+        <span id="devStatusRos" class="status-chip-value warn">Standby</span>
+      </div>
+    </div>
+
+    <div class="dev-body">
+      <!-- Tab Navigation -->
+      <div class="dev-tab-nav">
+        <button class="dev-tab-btn active" data-tab="battery">🔋 Battery</button>
+        <button class="dev-tab-btn" data-tab="map">🗺 Map</button>
+        <button class="dev-tab-btn" data-tab="teleop">🎮 Teleop</button>
+      </div>
+
+      <!-- Battery Tab -->
+      <div id="tab-battery" class="dev-tab-content active">
+        <div class="dev-panel">
+          <div class="dev-panel-title">🔋 Battery Status</div>
+          <div class="battery-display">
+            <div id="devBatteryPercent" class="battery-percent">100%</div>
+            <div class="battery-bar-outer">
+              <div id="devBatteryBar" class="battery-bar-inner" style="width: 100%"></div>
+            </div>
+            <div class="battery-label">Charge Level</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Tab -->
+      <div id="tab-map" class="dev-tab-content">
+        <div class="dev-panel">
+          <div class="dev-panel-title">🗺 Robot Map</div>
+          <div class="map-area">
+            <div class="map-grid"></div>
+            <div class="map-robot-dot"></div>
+            <span class="map-placeholder-text">Awaiting ROS map feed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teleop Tab -->
+      <div id="tab-teleop" class="dev-tab-content">
+        <div class="dev-panel">
+          <div class="dev-panel-title">🎮 Teleop Control</div>
+          <div class="teleop-grid">
+            <div>
+              <div class="teleop-keys">
+                <div class="teleop-btn empty"></div>
+                <button class="teleop-btn" data-dir="forward">W<br><span style="font-size:10px;opacity:0.4">▲</span></button>
+                <div class="teleop-btn empty"></div>
+                <button class="teleop-btn" data-dir="left">A<br><span style="font-size:10px;opacity:0.4">◄</span></button>
+                <button class="teleop-btn stop-btn" data-dir="stop">■</button>
+                <button class="teleop-btn" data-dir="right">D<br><span style="font-size:10px;opacity:0.4">►</span></button>
+                <div class="teleop-btn empty"></div>
+                <button class="teleop-btn" data-dir="backward">S<br><span style="font-size:10px;opacity:0.4">▼</span></button>
+                <div class="teleop-btn empty"></div>
+              </div>
+              <div class="teleop-hint">Use W A S D keys or click buttons • Space = Stop</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1318,8 +1770,195 @@
       }
     };
 
+    // ==========================================
+    // TAP DETECTOR — 5 taps on both eyes
+    // ==========================================
+    const TapDetector = {
+      taps: { left: [], right: [] },
+      requiredTaps: 5,
+      timeWindow: 3000, // ms
+
+      init() {
+        UI.leftEye.addEventListener('click', () => this.registerTap('left'));
+        UI.rightEye.addEventListener('click', () => this.registerTap('right'));
+      },
+
+      registerTap(eye) {
+        const now = Date.now();
+        this.taps[eye].push(now);
+
+        // Remove taps outside the time window
+        this.taps[eye] = this.taps[eye].filter(t => now - t < this.timeWindow);
+
+        // Check if both eyes have enough taps
+        if (this.taps.left.length >= this.requiredTaps &&
+            this.taps.right.length >= this.requiredTaps) {
+          this.taps.left = [];
+          this.taps.right = [];
+          DevScreenController.toggle();
+        }
+      }
+    };
+
+    // ==========================================
+    // DEV SCREEN CONTROLLER
+    // ==========================================
+    const DevScreenController = {
+      el: document.getElementById('devScreen'),
+      isVisible: false,
+      _keyHandler: null,
+      _keyUpHandler: null,
+
+      init() {
+        // Tab navigation
+        this.el.querySelectorAll('.dev-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+        });
+
+        // Exit button
+        document.getElementById('devExitBtn').addEventListener('click', () => this.hide());
+
+        // Teleop buttons
+        this.el.querySelectorAll('.teleop-btn[data-dir]').forEach(btn => {
+          btn.addEventListener('mousedown', () => {
+            this.sendTeleop(btn.dataset.dir);
+            btn.classList.add('pressed');
+          });
+          btn.addEventListener('mouseup', () => {
+            if (btn.dataset.dir !== 'stop') this.sendTeleop('stop');
+            btn.classList.remove('pressed');
+          });
+          btn.addEventListener('mouseleave', () => {
+            btn.classList.remove('pressed');
+          });
+        });
+
+        // Keyboard teleop (WASD + Space)
+        this._keyHandler = (e) => {
+          if (!this.isVisible || e.repeat) return;
+          const keyMap = {
+            'w': 'forward', 'W': 'forward', 'ArrowUp': 'forward',
+            's': 'backward', 'S': 'backward', 'ArrowDown': 'backward',
+            'a': 'left', 'A': 'left', 'ArrowLeft': 'left',
+            'd': 'right', 'D': 'right', 'ArrowRight': 'right',
+            ' ': 'stop'
+          };
+          if (keyMap[e.key]) {
+            e.preventDefault();
+            this.sendTeleop(keyMap[e.key]);
+            // Highlight corresponding button
+            const btn = this.el.querySelector(`.teleop-btn[data-dir="${keyMap[e.key]}"]`);
+            if (btn) btn.classList.add('pressed');
+          }
+        };
+
+        this._keyUpHandler = (e) => {
+          if (!this.isVisible) return;
+          const keyMap = {
+            'w': 'forward', 'W': 'forward', 'ArrowUp': 'forward',
+            's': 'backward', 'S': 'backward', 'ArrowDown': 'backward',
+            'a': 'left', 'A': 'left', 'ArrowLeft': 'left',
+            'd': 'right', 'D': 'right', 'ArrowRight': 'right',
+            ' ': 'stop'
+          };
+          if (keyMap[e.key]) {
+            const dir = keyMap[e.key];
+            const btn = this.el.querySelector(`.teleop-btn[data-dir="${dir}"]`);
+            if (btn) btn.classList.remove('pressed');
+            if (dir !== 'stop') this.sendTeleop('stop');
+          }
+        };
+
+        document.addEventListener('keydown', this._keyHandler);
+        document.addEventListener('keyup', this._keyUpHandler);
+      },
+
+      toggle() {
+        if (this.isVisible) this.hide();
+        else this.show();
+      },
+
+      show() {
+        this.isVisible = true;
+        // Update expression status
+        document.getElementById('devStatusExpr').textContent = State.currentExpression;
+        this.el.style.display = 'flex';
+        requestAnimationFrame(() => this.el.classList.add('active'));
+        console.log('Dev screen opened');
+      },
+
+      switchTab(tabName) {
+        // Update tab buttons
+        this.el.querySelectorAll('.dev-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        // Update tab content
+        this.el.querySelectorAll('.dev-tab-content').forEach(panel => {
+          panel.classList.toggle('active', panel.id === `tab-${tabName}`);
+        });
+      },
+
+      hide() {
+        this.isVisible = false;
+        this.el.classList.remove('active');
+        // Wait for fade-out transition
+        setTimeout(() => {
+          if (!this.isVisible) this.el.style.display = 'none';
+        }, 300);
+        console.log('Dev screen closed');
+      },
+
+      sendTeleop(direction) {
+        console.log('Teleop:', direction);
+        // Send via IPC if electron is available
+        if (typeof require !== 'undefined') {
+          try {
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send('teleop-cmd', direction);
+          } catch (e) { /* not in electron */ }
+        }
+      },
+
+      updateBattery(percent) {
+        percent = Math.max(0, Math.min(100, percent));
+        const percentEl = document.getElementById('devBatteryPercent');
+        const barEl = document.getElementById('devBatteryBar');
+        const battChip = document.getElementById('devStatusBatt');
+        const isLow = percent <= 20;
+
+        percentEl.textContent = `${Math.round(percent)}%`;
+        percentEl.className = 'battery-percent' + (isLow ? ' low' : '');
+        barEl.style.width = `${percent}%`;
+        barEl.className = 'battery-bar-inner' + (isLow ? ' low' : '');
+        // Sync status bar chip
+        if (battChip) {
+          battChip.textContent = `${Math.round(percent)}%`;
+          battChip.className = 'status-chip-value ' + (isLow ? 'error' : 'ok');
+        }
+      },
+
+      updateStatus(key, value, state) {
+        const el = document.getElementById(`devStatus${key}`);
+        if (el) {
+          el.textContent = value;
+          el.className = `status-chip-value ${state || ''}`;
+        }
+      }
+    };
+
     // Start Controller
     RobotFace.init();
+    TapDetector.init();
+    DevScreenController.init();
+
+    // Expose dev screen API
+    window.devScreen = {
+      show: () => DevScreenController.show(),
+      hide: () => DevScreenController.hide(),
+      toggle: () => DevScreenController.toggle(),
+      updateBattery: (pct) => DevScreenController.updateBattery(pct),
+      updateStatus: (key, val, state) => DevScreenController.updateStatus(key, val, state)
+    };
   </script>
 </body>
 

@@ -85,6 +85,18 @@ function createWindows() {
       faceWindow.webContents.executeJavaScript(`playSound('${expression}')`);
     }
   });
+
+  ipcMain.on('teleop-cmd', (event, direction) => {
+    console.log('Teleop command:', direction);
+    // Forward to ROS2 bridge when available
+    // e.g. ros2Bridge.publishTeleop(direction);
+  });
+
+  ipcMain.on('toggle-devscreen', () => {
+    if (faceWindow && !faceWindow.isDestroyed()) {
+      faceWindow.webContents.executeJavaScript(`devScreen.toggle()`);
+    }
+  });
 }
 
 app.on('ready', createWindows);

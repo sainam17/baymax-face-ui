@@ -81,9 +81,12 @@
             </button>
         </div>
 
-        <div class="mt-6 flex justify-center">
+        <div class="mt-6 flex justify-center gap-4">
             <button onclick="sendBlink()" class="control-btn bg-gray-600 hover:bg-gray-700">
                 😉 Blink
+            </button>
+            <button onclick="toggleDevMode()" class="control-btn bg-indigo-600 hover:bg-indigo-700">
+                ⚙ Dev Mode
             </button>
         </div>
 
@@ -132,6 +135,10 @@
 
         function sendBlink() {
             ipcRenderer.send('blink');
+        }
+
+        function toggleDevMode() {
+            ipcRenderer.send('toggle-devscreen');
         }
 
         function updateActiveButton(expression) {
