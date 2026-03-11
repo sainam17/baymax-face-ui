@@ -418,7 +418,7 @@
     .battery-warning.active {
       opacity: 1;
       visibility: visible;
-      animation: battery-blink 1.5s ease-in-out infinite;
+      animation: battery-blink 0.4s ease-in-out infinite;
     }
 
     .battery-warning svg {
@@ -1184,10 +1184,58 @@
     };
 
     // ==========================================
+    // SOUND CONTROLLER
+    // ==========================================
+    const SoundController = {
+      sounds: {},
+      currentSound: null,
+      expressions: ['idle', 'happy', 'thinking', 'scanning', 'talking', 'surprised', 'warning'],
+
+      init() {
+        // Preload audio for each expression
+        this.expressions.forEach(expr => {
+          const audio = new Audio(`sounds/${expr}.mp3`);
+          audio.preload = 'auto';
+          // Only add to map if the file actually loads
+          audio.addEventListener('canplaythrough', () => {
+            this.sounds[expr] = audio;
+            console.log(`Sound loaded: ${expr}`);
+          }, { once: true });
+          audio.addEventListener('error', () => {
+            console.warn(`Sound file not found: sounds/${expr}.mp3 — skipping`);
+          }, { once: true });
+          // Trigger load
+          audio.load();
+        });
+      },
+
+      play(expression) {
+        // Stop any currently playing sound
+        this.stop();
+
+        const audio = this.sounds[expression];
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(err => console.warn(`Could not play sound for ${expression}:`, err));
+          this.currentSound = audio;
+        }
+      },
+
+      stop() {
+        if (this.currentSound) {
+          this.currentSound.pause();
+          this.currentSound.currentTime = 0;
+          this.currentSound = null;
+        }
+      }
+    };
+
+    // ==========================================
     // MAIN ROBOT CONTROLLER
     // ==========================================
     const RobotFace = {
       init() {
+        SoundController.init();
         this.setExpression('idle');
         EyeController.startRandomBlinking();
         this.exposeAPI();
@@ -1201,6 +1249,9 @@
         UI.faceContainer.className = 'face-container breathing relative w-full h-full flex flex-col items-center justify-center';
 
         State.currentExpression = expression;
+
+        // Play sound for this expression
+        SoundController.play(expression);
 
         // Reset mouth state
         MouthController.reset();
@@ -1254,12 +1305,16 @@
           setExpression: (expr) => this.setExpression(expr),
           blink: () => EyeController.blink(),
           moveEyes: (dir) => EyeController.moveByDirection(dir),
+          playSound: (expr) => SoundController.play(expr),
+          stopSound: () => SoundController.stop(),
           setStatus: (text) => console.log('Status: ' + text)
         };
 
         window.setExpression = (expr) => this.setExpression(expr);
         window.blink = () => EyeController.blink();
         window.moveEyes = (dir) => EyeController.moveByDirection(dir);
+        window.playSound = (expr) => SoundController.play(expr);
+        window.stopSound = () => SoundController.stop();
       }
     };
 

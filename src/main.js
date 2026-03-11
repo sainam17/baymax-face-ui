@@ -79,6 +79,12 @@ function createWindows() {
       faceWindow.webContents.executeJavaScript(`moveEyes('${direction}')`);
     }
   });
+
+  ipcMain.on('play-sound', (event, expression) => {
+    if (faceWindow && !faceWindow.isDestroyed()) {
+      faceWindow.webContents.executeJavaScript(`playSound('${expression}')`);
+    }
+  });
 }
 
 app.on('ready', createWindows);
