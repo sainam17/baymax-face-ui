@@ -13,6 +13,8 @@
       overflow: hidden;
       user-select: none;
       -webkit-user-select: none;
+      touch-action: none;
+      /* Enable touchscreen mode */
     }
 
     /* ===== EYE SOCKET — rounded rectangle (capsule) container ===== */
@@ -125,11 +127,11 @@
 
     /* Surprised — eyelids pull back fully */
     .eyelid-top.wide {
-      transform: translateY(-100%) rotate(0deg);
+      transform: translateY(-100%) rotate(0deg) !important;
     }
 
     .eyelid-bottom.wide {
-      transform: translateY(100%) rotate(0deg);
+      transform: translateY(100%) rotate(0deg) !important;
     }
 
     /* Skeptical — one eyebrow raised (slight tilt) */
@@ -139,31 +141,7 @@
 
 
     /* ===== EYEBALL ANIMATIONS ===== */
-    @keyframes scan-eyeball {
-      0% {
-        transform: translateX(0);
-      }
 
-      20% {
-        transform: translateX(20px);
-      }
-
-      40% {
-        transform: translateX(20px);
-      }
-
-      60% {
-        transform: translateX(-20px);
-      }
-
-      80% {
-        transform: translateX(-20px);
-      }
-
-      100% {
-        transform: translateX(0);
-      }
-    }
 
     @keyframes thinking-iris {
 
@@ -181,7 +159,6 @@
       }
     }
 
-
     .iris.thinking {
       animation: thinking-iris 2.5s ease-in-out infinite;
     }
@@ -192,10 +169,7 @@
         transform: translate(-50%, -50%);
       }
 
-      15% {
-        transform: translate(-50%, -50%) translateX(25px);
-      }
-
+      15%,
       35% {
         transform: translate(-50%, -50%) translateX(25px);
       }
@@ -204,10 +178,7 @@
         transform: translate(-50%, -50%);
       }
 
-      65% {
-        transform: translate(-50%, -50%) translateX(-25px);
-      }
-
+      65%,
       85% {
         transform: translate(-50%, -50%) translateX(-25px);
       }
@@ -218,80 +189,92 @@
     }
 
     @keyframes scan-socket-left {
-      0% {
-        transform: rotate(0deg) scaleY(1);
-      }
 
-      15% {
-        transform: rotate(-6deg) scaleY(0.92);
-      }
-
-      35% {
-        transform: rotate(-6deg) scaleY(0.92);
-      }
-
-      50% {
-        transform: rotate(0deg) scaleY(1);
-      }
-
-      65% {
-        transform: rotate(6deg) scaleY(0.92);
-      }
-
-      85% {
-        transform: rotate(6deg) scaleY(0.92);
-      }
-
+      0%,
+      50%,
       100% {
-        transform: rotate(0deg) scaleY(1);
+        transform: scale(1);
+      }
+
+      15%,
+      35% {
+        transform: scale(1.05);
+        /* Looking Right -> Bigger */
+      }
+
+      65%,
+      85% {
+        transform: scale(0.95);
+        /* Looking Left -> Smaller */
       }
     }
 
     @keyframes scan-socket-right {
-      0% {
-        transform: rotate(0deg) scaleY(1);
-      }
 
-      15% {
-        transform: rotate(-8deg) scaleY(0.88);
-      }
-
-      35% {
-        transform: rotate(-8deg) scaleY(0.88);
-      }
-
-      50% {
-        transform: rotate(0deg) scaleY(1);
-      }
-
-      65% {
-        transform: rotate(8deg) scaleY(0.88);
-      }
-
-      85% {
-        transform: rotate(8deg) scaleY(0.88);
-      }
-
+      0%,
+      50%,
       100% {
-        transform: rotate(0deg) scaleY(1);
+        transform: scale(1);
+      }
+
+      15%,
+      35% {
+        transform: scale(0.95);
+        /* Looking Right -> Smaller */
+      }
+
+      65%,
+      85% {
+        transform: scale(1.05);
+        /* Looking Left -> Bigger */
+      }
+    }
+
+    /* Mouth scanning movement */
+    @keyframes scan-mouth {
+
+      0%,
+      50%,
+      100% {
+        transform: translateX(0) scaleX(1);
+      }
+
+      15%,
+      35% {
+        transform: translateX(15px) scaleX(0.92);
+        /* Sync with Looking Right */
+      }
+
+      65%,
+      85% {
+        transform: translateX(-15px) scaleX(0.92);
+        /* Sync with Looking Left */
       }
     }
 
     .iris.scanning {
-      animation: scan-iris 3s ease-in-out infinite;
+      animation: scan-iris 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     }
 
     .eye-socket.left-eye.scanning {
-      animation: scan-socket-left 3s ease-in-out infinite;
+      animation: scan-socket-left 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     }
 
     .eye-socket.right-eye.scanning {
-      animation: scan-socket-right 3s ease-in-out infinite;
+      animation: scan-socket-right 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    .mouth-container.scanning {
+      animation: scan-mouth 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     }
 
     /* Scanning eyelid — slight squint */
     .eyelid-top.scan-squint {
-      transform: translateY(-70%) rotate(0deg);
+      transform: translateY(-62%) rotate(0deg);
+    }
+
+    .eyelid-bottom.scan-squint {
+      transform: translateY(75%) rotate(0deg);
     }
 
     /* ===== EYELID HIDDEN (for happy) ===== */
@@ -505,6 +488,88 @@
       transition: transform 0.4s ease-in-out;
     }
 
+    /* ===== IDLE MICRO-ANIMATIONS ===== */
+
+    /* Pupil subtle size pulse */
+    @keyframes pupil-pulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+    }
+
+    .pupil.idle-pulse {
+      animation: pupil-pulse 3s ease-in-out infinite;
+    }
+
+    /* Iris shimmer — subtle light reflection moving across */
+    @keyframes iris-shimmer {
+
+      0%,
+      100% {
+        box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
+      }
+
+      30% {
+        box-shadow: inset 4px -2px 16px rgba(255, 255, 255, 0.1),
+          inset 0 0 12px rgba(255, 255, 255, 0.05);
+      }
+
+      70% {
+        box-shadow: inset -4px 2px 16px rgba(255, 255, 255, 0.08),
+          inset 0 0 12px rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    .iris.idle-shimmer {
+      animation: iris-shimmer 5s ease-in-out infinite;
+    }
+
+    /* Mouth subtle breathing — tiny vertical pulse */
+    @keyframes mouth-breathe {
+
+      0%,
+      100% {
+        transform: scaleY(1);
+      }
+
+      50% {
+        transform: scaleY(1.06);
+      }
+    }
+
+    .mouth-container.idle-breathe {
+      animation: mouth-breathe 4s ease-in-out infinite;
+      animation-delay: 1s;
+    }
+
+    /* Eye socket subtle ambient glow pulse */
+    @keyframes socket-glow {
+
+      0%,
+      100% {
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.15),
+          0 0 30px rgba(100, 140, 255, 0.06);
+      }
+
+      50% {
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.15),
+          0 0 40px rgba(100, 140, 255, 0.12),
+          0 0 60px rgba(100, 140, 255, 0.04);
+      }
+    }
+
+    .eye-socket.idle-glow {
+      animation: socket-glow 6s ease-in-out infinite;
+    }
+
     /* Instant hide for eyes and mouth during warning */
     .eyes-container-wrap {
       transition: opacity 0s;
@@ -529,223 +594,173 @@
       transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    /* Outer mouth — visible border/lip shape */
+    /* Outer mouth — SVG path morphing base */
     .mouth-outer {
       position: relative;
-      width: 130px;
-      height: 18px;
-      border-radius: 100px;
-      background: radial-gradient(ellipse at 50% 40%, #2a2a2a, #0a0a0a 80%);
-      box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.2),
-        inset 0 1px 3px rgba(255, 255, 255, 0.04);
+      width: 200px;
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    /* Inner mouth — darker inset for depth */
-    .mouth-inner {
-      width: 70%;
-      height: 55%;
-      border-radius: 100px;
-      background: radial-gradient(ellipse at 50% 40%, #1a1a1a, #000000 70%);
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    .mouth-outer svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
     }
 
-    /* Core — deepest layer, subtle highlight */
-    .mouth-core {
-      width: 50%;
-      height: 40%;
-      border-radius: 100px;
-      background: #000000;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* Base paths — converted to 14-point capsule layout (M L C L C L C L C) to match face states */
+    .mouth-outer-path {
+      fill: url(#mouthOuterGrad);
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2)) drop-shadow(0 1px 3px rgba(255, 255, 255, 0.04));
+      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      d: path('M 0 -9 L 0 -9 C 35.8985 -9, 65 -4.9705, 65 0 L 65 0 C 65 4.9705, 35.8985 9, 0 9 L 0 9 C -35.8985 9, -65 4.9705, -65 0 L -65 0 C -65 -4.9705, -35.8985 -9, 0 -9 Z');
     }
 
-    /* ===== SMILE STATE — closed mouth, curved lip line ===== */
-    .mouth-container.smile .mouth-outer {
-      /* Curved smile arc — closed mouth */
-      width: 140px;
-      height: 18px;
-      border-radius: 0 0 50% 50% / 0 0 100% 100%;
-      background: linear-gradient(to bottom,
-          #2a2a2a 0%,
-          #1a1a1a 50%,
-          #0a0a0a 100%);
-      box-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.25),
-        inset 0 1px 2px rgba(255, 255, 255, 0.04),
-        inset 0 -1px 3px rgba(0, 0, 0, 0.5);
+    .mouth-inner-path {
+      fill: url(#mouthInnerGrad);
+      filter: drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.8));
+      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      d: path('M 0 -4.95 L 0 -4.95 C 25.1289 -4.95, 45.5 -2.7338, 45.5 0 L 45.5 0 C 45.5 2.7338, 25.1289 4.95, 0 4.95 L 0 4.95 C -25.1289 4.95, -45.5 2.7338, -45.5 0 L -45.5 0 C -45.5 -2.7338, -25.1289 -4.95, 0 -4.95 Z');
     }
 
-    .mouth-container.smile .mouth-inner,
-    .mouth-container.smile .mouth-core {
-      display: none;
+    .mouth-core-path {
+      fill: #000000;
+      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      d: path('M 0 -3.6 L 0 -3.6 C 17.9492 -3.6, 32.5 -1.9882, 32.5 0 L 32.5 0 C 32.5 1.9882, 17.9492 3.6, 0 3.6 L 0 3.6 C -17.9492 3.6, -32.5 1.9882, -32.5 0 L -32.5 0 C -32.5 -1.9882, -17.9492 -3.6, 0 -3.6 Z');
+    }
+
+    /* ===== SMILE STATE — U-curve smile mapped to the same 14-point structure as other mouths for smooth morphing ===== */
+    .mouth-container.smile .mouth-outer-path {
+      d: path('M 0 22 L 0 22 C 30 22, 55 -8, 55 -8 L 55 -8 C 62 -8, 38 30, 0 30 L 0 30 C -38 30, -62 -8, -55 -8 L -55 -8 C -55 -8, -30 22, 0 22 Z');
+      transform: translateY(0px) rotate(0deg) scale(1, 1);
+    }
+
+    /* Shrink inner layers gracefully with exact point mapping */
+    .mouth-container.smile .mouth-inner-path {
+      d: path('M 0 16 L 0 16 C 24 16, 44 -4, 44 -4 L 44 -4 C 50 -4, 28 22, 0 22 L 0 22 C -28 22, -50 -4, -44 -4 L -44 -4 C -44 -4, -24 16, 0 16 Z');
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .mouth-container.smile .mouth-core-path {
+      d: path('M 0 10 L 0 10 C 18 10, 32 -2, 32 -2 L 32 -2 C 36 -2, 20 14, 0 14 L 0 14 C -20 14, -36 -2, -32 -2 L -32 -2 C -32 -2, -18 10, 0 10 Z');
+      opacity: 0;
+      transform: translateY(6.4px);
     }
 
     /* ===== HAPPY SMILE — wider, more open ===== */
-    .mouth-container.happy-smile .mouth-outer {
-      width: 160px;
-      height: 80px;
-      border-radius: 8% 8% 50% 50% / 0% 0% 100% 100%;
-      background: radial-gradient(ellipse at 50% 25%, #2a2a2a, #0a0a0a 80%);
-      box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.35),
-        inset 0 -4px 10px rgba(0, 0, 0, 0.45),
-        inset 0 2px 5px rgba(255, 255, 255, 0.03);
+    .mouth-container.happy-smile .mouth-outer-path {
+      d: path('M -67.2 -40 L 67.2 -40 C 74.2692447978368 -40, 80 -40, 80 -40 L 80 -40 C 80 4.18277998648, 44.18277998648 40, 0 40 L 0 40 C -44.18277998648 40, -80 4.18277998648, -80 -40 L -80 -40 C -80 -40, -74.2692447978368 -40, -67.2 -40 Z');
     }
 
-    .mouth-container.happy-smile .mouth-inner {
-      width: 80%;
-      height: 78%;
-      border-radius: 6% 6% 50% 50% / 0% 0% 100% 100%;
-      background: radial-gradient(ellipse at 50% 15%, #1a1a1a, #000000 70%);
-      box-shadow: inset 0 -4px 12px rgba(0, 0, 0, 0.6);
-      margin-top: 5%;
+    .mouth-container.happy-smile .mouth-inner-path {
+      d: path('M -56.32 -31.2 L 56.32 -31.2 C 60.56154687870208 -31.2, 64 -31.2, 64 -31.2 L 64 -31.2 C 64 3.2625683894543975, 35.346223989184 31.2, 0 31.2 L 0 31.2 C -35.346223989184 31.2, -64 3.2625683894543975, -64 -31.2 L -64 -31.2 C -64 -31.2, -60.56154687870208 -31.2, -56.32 -31.2 Z');
+      transform: translateY(4px);
     }
 
-    .mouth-container.happy-smile .mouth-core {
-      width: 62%;
-      height: 60%;
-      border-radius: 4% 4% 50% 50% / 0% 0% 100% 100%;
-      background: #000000;
-      margin-top: 8%;
+    .mouth-container.happy-smile .mouth-core-path {
+      d: path('M -45.632 -24 L 45.632 -24 C 47.823465887329405 -24, 49.6 -24, 49.6 -24 L 49.6 -24 C 49.6 2.509667991887998, 27.393323591617598 24, 0 24 L 0 24 C -27.393323591617598 24, -49.6 2.509667991887998, -49.6 -24 L -49.6 -24 C -49.6 -24, -47.823465887329405 -24, -45.632 -24 Z');
+      transform: translateY(6.4px);
     }
 
     /* ===== THINK — small neutral pursed, like reference "Think" ===== */
-    .mouth-container.think .mouth-outer {
-      width: 50px;
-      height: 14px;
+    .mouth-container.think .mouth-outer-path {
+      d: path('M -20 -10 L 20 -10 C 25.52284749831 -10, 30 -5.52284749831, 30 0 L 30 0 C 30 5.52284749831, 25.52284749831 10, 20 10 L -20 10 C -25.52284749831 10, -30 5.52284749831, -30 0 L -30 0 C -30 -5.52284749831, -25.52284749831 -10, -20 -10 Z');
     }
 
-    .mouth-container.think .mouth-inner {
-      width: 60%;
-      height: 45%;
+    .mouth-container.think .mouth-inner-path {
+      d: path('M -12 -6 L 12 -6 C 15.313708498986 -6, 18 -3.3137084989859997, 18 0 L 18 0 C 18 3.3137084989859997, 15.313708498986 6, 12 6 L -12 6 C -15.313708498986 6, -18 3.3137084989859997, -18 0 L -18 0 C -18 -3.3137084989859997, -15.313708498986 -6, -12 -6 Z');
     }
 
-    .mouth-container.think .mouth-core {
-      width: 40%;
-      height: 30%;
+    .mouth-container.think .mouth-core-path {
+      d: path('M -8 -4 L 8 -4 C 10.209138999324 -4, 12 -2.209138999324, 12 0 L 12 0 C 12 2.209138999324, 10.209138999324 4, 8 4 L -8 4 C -10.209138999324 4, -12 2.209138999324, -12 0 L -12 0 C -12 -2.209138999324, -10.209138999324 -4, -8 -4 Z');
     }
 
     /* ===== SURPRISED O — round "Oh!" from reference ===== */
-    .mouth-container.surprised .mouth-outer {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
+    .mouth-container.surprised .mouth-outer-path {
+      d: path('M 0 -35 L 0 -35 C 19.329966244085 -35, 35 -19.329966244085, 35 0 L 35 0 C 35 19.329966244085, 19.329966244085 35, 0 35 L 0 35 C -19.329966244085 35, -35 19.329966244085, -35 0 L -35 0 C -35 -19.329966244085, -19.329966244085 -35, 0 -35 Z');
     }
 
-    .mouth-container.surprised .mouth-inner {
-      width: 65%;
-      height: 65%;
-      border-radius: 50%;
+    .mouth-container.surprised .mouth-inner-path {
+      d: path('M 0 -25 L 0 -25 C 13.807118745774998 -25, 25 -13.807118745774998, 25 0 L 25 0 C 25 13.807118745774998, 13.807118745774998 25, 0 25 L 0 25 C -13.807118745774998 25, -25 13.807118745774998, -25 0 L -25 0 C -25 -13.807118745774998, -13.807118745774998 -25, 0 -25 Z');
     }
 
-    .mouth-container.surprised .mouth-core {
-      width: 55%;
-      height: 55%;
-      border-radius: 50%;
+    .mouth-container.surprised .mouth-core-path {
+      d: path('M 0 -20 L 0 -20 C 11.04569499662 -20, 20 -11.04569499662, 20 0 L 20 0 C 20 11.04569499662, 11.04569499662 20, 0 20 L 0 20 C -11.04569499662 20, -20 11.04569499662, -20 0 L -20 0 C -20 -11.04569499662, -11.04569499662 -20, 0 -20 Z');
     }
 
     /* ===== TALKING VOWEL SHAPES ===== */
-    .mouth-container.talking .mouth-outer,
-    .mouth-container.talking .mouth-inner,
-    .mouth-container.talking .mouth-core {
-      transition: all 0.18s ease-in-out;
+    .mouth-container.talking .mouth-outer-path,
+    .mouth-container.talking .mouth-inner-path,
+    .mouth-container.talking .mouth-core-path {
+      transition: d 0.18s ease-in-out, transform 0.18s ease-in-out, opacity 0.18s ease-in-out;
     }
 
     /* A — wide open, tall (like reference "A,E,I" / "aaa") */
-    .mouth-container.vowel-a .mouth-outer {
-      width: 80px;
-      height: 50px;
-      border-radius: 40%;
+    .mouth-container.vowel-a .mouth-outer-path {
+      d: path('M -15 -30 L 15 -30 C 31.56854249493 -30, 45 -21.04569499662, 45 -10 L 45 10 C 45 21.04569499662, 31.56854249493 30, 15 30 L -15 30 C -31.56854249493 30, -45 21.04569499662, -45 10 L -45 -10 C -45 -21.04569499662, -31.56854249493 -30, -15 -30 Z');
     }
 
-    .mouth-container.vowel-a .mouth-inner {
-      width: 70%;
-      height: 65%;
-      border-radius: 40%;
+    .mouth-container.vowel-a .mouth-inner-path {
+      d: path('M -12.5 -22.5 L 12.5 -22.5 C 23.54569499662 -22.5, 32.5 -15.784271247465, 32.5 -7.5 L 32.5 7.5 C 32.5 15.784271247465, 23.54569499662 22.5, 12.5 22.5 L -12.5 22.5 C -23.54569499662 22.5, -32.5 15.784271247465, -32.5 7.5 L -32.5 -7.5 C -32.5 -15.784271247465, -23.54569499662 -22.5, -12.5 -22.5 Z');
     }
 
-    .mouth-container.vowel-a .mouth-core {
-      width: 55%;
-      height: 55%;
-      border-radius: 40%;
+    .mouth-container.vowel-a .mouth-core-path {
+      d: path('M -10 -17.5 L 10 -17.5 C 18.284271247465 -17.5, 25 -12.127416997971999, 25 -5.5 L 25 5.5 C 25 12.127416997971999, 18.284271247465 17.5, 10 17.5 L -10 17.5 C -18.284271247465 17.5, -25 12.127416997971999, -25 5.5 L -25 -5.5 C -25 -12.127416997971999, -18.284271247465 -17.5, -10 -17.5 Z');
     }
 
     /* E — wide horizontal, short (like reference "E,e") */
-    .mouth-container.vowel-e .mouth-outer {
-      width: 110px;
-      height: 28px;
+    .mouth-container.vowel-e .mouth-outer-path {
+      d: path('M -42 -18 L 42 -18 C 51.941125496958 -18, 60 -9.941125496958, 60 0 L 60 0 C 60 9.941125496958, 51.941125496958 18, 42 18 L -42 18 C -51.941125496958 18, -60 9.941125496958, -60 0 L -60 0 C -60 -9.941125496958, -51.941125496958 -18, -42 -18 Z');
     }
 
-    .mouth-container.vowel-e .mouth-inner {
-      width: 75%;
-      height: 55%;
+    .mouth-container.vowel-e .mouth-inner-path {
+      d: path('M -35 -10 L 35 -10 C 40.52284749831 -10, 45 -5.52284749831, 45 0 L 45 0 C 45 5.52284749831, 40.52284749831 10, 35 10 L -35 10 C -40.52284749831 10, -45 5.52284749831, -45 0 L -45 0 C -45 -5.52284749831, -40.52284749831 -10, -35 -10 Z');
     }
 
-    .mouth-container.vowel-e .mouth-core {
-      width: 55%;
-      height: 40%;
+    .mouth-container.vowel-e .mouth-core-path {
+      d: path('M -25.5 -7 L 25.5 -7 C 29.365993248817 -7, 32.5 -3.8659932488169995, 32.5 0 L 32.5 0 C 32.5 3.8659932488169995, 29.365993248817 7, 25.5 7 L -25.5 7 C -29.365993248817 7, -32.5 3.8659932488169995, -32.5 0 L -32.5 0 C -32.5 -3.8659932488169995, -29.365993248817 -7, -25.5 -7 Z');
     }
 
     /* I — very wide, thin (like reference "R" / wide grin) */
-    .mouth-container.vowel-i .mouth-outer {
-      width: 120px;
-      height: 20px;
+    .mouth-container.vowel-i .mouth-outer-path {
+      d: path('M -53 -12 L 53 -12 C 59.627416997972 -12, 65 -6.6274169979719995, 65 0 L 65 0 C 65 6.6274169979719995, 59.627416997972 12, 53 12 L -53 12 C -59.627416997972 12, -65 6.6274169979719995, -65 0 L -65 0 C -65 -6.6274169979719995, -59.627416997972 -12, -53 -12 Z');
     }
 
-    .mouth-container.vowel-i .mouth-inner {
-      width: 70%;
-      height: 50%;
+    .mouth-container.vowel-i .mouth-inner-path {
+      d: path('M -41.5 -6 L 41.5 -6 C 44.813708498986 -6, 47.5 -3.3137084989859997, 47.5 0 L 47.5 0 C 47.5 3.3137084989859997, 44.813708498986 6, 41.5 6 L -41.5 6 C -44.813708498986 6, -47.5 3.3137084989859997, -47.5 0 L -47.5 0 C -47.5 -3.3137084989859997, -44.813708498986 -6, -41.5 -6 Z');
     }
 
-    .mouth-container.vowel-i .mouth-core {
-      width: 50%;
-      height: 35%;
+    .mouth-container.vowel-i .mouth-core-path {
+      d: path('M -28.5 -4 L 28.5 -4 C 30.709138999324 -4, 32.5 -2.209138999324, 32.5 0 L 32.5 0 C 32.5 2.209138999324, 30.709138999324 4, 28.5 4 L -28.5 4 C -30.709138999324 4, -32.5 2.209138999324, -32.5 0 L -32.5 0 C -32.5 -2.209138999324, -30.709138999324 -4, -28.5 -4 Z');
     }
 
     /* O — round circle (like reference "O" / "Oh") */
-    .mouth-container.vowel-o .mouth-outer {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+    .mouth-container.vowel-o .mouth-outer-path {
+      d: path('M 0 -30 L 0 -30 C 16.5685 -30, 30 -16.5685, 30 0 L 30 0 C 30 16.5685, 16.5685 30, 0 30 L 0 30 C -16.5685 30, -30 16.5685, -30 0 L -30 0 C -30 -16.5685, -16.5685 -30, 0 -30 Z');
     }
 
-    .mouth-container.vowel-o .mouth-inner {
-      width: 65%;
-      height: 65%;
-      border-radius: 50%;
+    .mouth-container.vowel-o .mouth-inner-path {
+      d: path('M 0 -21 L 0 -21 C 11.5979 -21, 21 -11.5979, 21 0 L 21 0 C 21 11.5979, 11.5979 21, 0 21 L 0 21 C -11.5979 21, -21 11.5979, -21 0 L -21 0 C -21 -11.5979, -11.5979 -21, 0 -21 Z');
     }
 
-    .mouth-container.vowel-o .mouth-core {
-      width: 50%;
-      height: 50%;
-      border-radius: 50%;
+    .mouth-container.vowel-o .mouth-core-path {
+      d: path('M 0 -15 L 0 -15 C 8.2842 -15, 15 -8.2842, 15 0 L 15 0 C 15 8.2842, 8.2842 15, 0 15 L 0 15 C -8.2842 15, -15 8.2842, -15 0 L -15 0 C -15 -8.2842, -8.2842 -15, 0 -15 Z');
     }
 
     /* U — small round (like reference "Un" / puckered) */
-    .mouth-container.vowel-u .mouth-outer {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
+    .mouth-container.vowel-u .mouth-outer-path {
+      d: path('M 0 -22.5 L 0 -22.5 C 12.4264 -22.5, 22.5 -12.4264, 22.5 0 L 22.5 0 C 22.5 12.4264, 12.4264 22.5, 0 22.5 L 0 22.5 C -12.4264 22.5, -22.5 12.4264, -22.5 0 L -22.5 0 C -22.5 -12.4264, -12.4264 -22.5, 0 -22.5 Z');
     }
 
-    .mouth-container.vowel-u .mouth-inner {
-      width: 60%;
-      height: 60%;
-      border-radius: 50%;
+    .mouth-container.vowel-u .mouth-inner-path {
+      d: path('M 0 -14 L 0 -14 C 7.7319 -14, 14 -7.7319, 14 0 L 14 0 C 14 7.7319, 7.7319 14, 0 14 L 0 14 C -7.7319 14, -14 7.7319, -14 0 L -14 0 C -14 -7.7319, -7.7319 -14, 0 -14 Z');
     }
 
-    .mouth-container.vowel-u .mouth-core {
-      width: 45%;
-      height: 45%;
-      border-radius: 50%;
+    .mouth-container.vowel-u .mouth-core-path {
+      d: path('M 0 -10 L 0 -10 C 5.5228 -10, 10 -5.5228, 10 0 L 10 0 C 10 5.5228, 5.5228 10, 0 10 L 0 10 C -5.5228 10, -10 5.5228, -10 0 L -10 0 C -10 -5.5228, -5.5228 -10, 0 -10 Z');
     }
 
     /* ===== DEV SCREEN OVERLAY ===== */
@@ -755,23 +770,127 @@
       z-index: 9999;
       background: #0a0e1a;
       display: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
       font-family: 'Segoe UI', 'Roboto', monospace;
       color: #e0e6f0;
       overflow: hidden;
     }
 
-    .dev-screen.active {
+    .dev-screen.visible {
       display: flex;
       flex-direction: column;
+    }
+
+    /* Scan-line open animation */
+    .dev-screen.opening {
+      animation: dev-open 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .dev-screen.closing {
+      animation: dev-close 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+    }
+
+    @keyframes dev-open {
+      0% {
+        clip-path: inset(50% 0 50% 0);
+        opacity: 0;
+      }
+
+      40% {
+        clip-path: inset(20% 0 20% 0);
+        opacity: 1;
+      }
+
+      100% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes dev-close {
+      0% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+      }
+
+      60% {
+        clip-path: inset(20% 0 20% 0);
+        opacity: 1;
+      }
+
+      100% {
+        clip-path: inset(50% 0 50% 0);
+        opacity: 0;
+      }
+    }
+
+    /* Scan flash line */
+    .dev-scan-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #00d4ff, #00ffaa, #00d4ff, transparent);
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dev-scan-line.sweep {
+      animation: scan-sweep 0.5s ease-out forwards;
+    }
+
+    @keyframes scan-sweep {
+      0% {
+        top: 0;
+        opacity: 0;
+        box-shadow: none;
+      }
+
+      10% {
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), 0 0 60px rgba(0, 212, 255, 0.2);
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Staggered content reveal */
+    .dev-screen .dev-header,
+    .dev-screen .dev-status-bar,
+    .dev-screen .dev-body {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .dev-screen.reveal .dev-header {
       opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.1s;
+    }
+
+    .dev-screen.reveal .dev-status-bar {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.2s;
+    }
+
+    .dev-screen.reveal .dev-body {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.3s;
     }
 
     .dev-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      gap: 300px;
       padding: 16px 28px;
       background: linear-gradient(135deg, #0f1524 0%, #141c30 100%);
       border-bottom: 1px solid rgba(0, 200, 255, 0.15);
@@ -785,6 +904,7 @@
       text-transform: uppercase;
       margin: 0;
       text-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+      transform: translateX(-50px);
     }
 
     .dev-exit-btn {
@@ -810,7 +930,7 @@
     .dev-body {
       flex: 1;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       min-height: 0;
       overflow: hidden;
     }
@@ -830,11 +950,11 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 12px;
+      padding: 3px 10px;
       background: #0a0e1a;
       border-radius: 20px;
       border: 1px solid rgba(0, 200, 255, 0.08);
-      font-size: 12px;
+      font-size: 11px;
       white-space: nowrap;
     }
 
@@ -843,7 +963,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
-      font-size: 10px;
+      font-size: 9px;
     }
 
     .status-chip-value {
@@ -851,26 +971,40 @@
       color: #00d4ff;
     }
 
-    .status-chip-value.ok { color: #00ff88; }
-    .status-chip-value.warn { color: #ffaa00; }
-    .status-chip-value.error { color: #ff3366; }
+    .status-chip-value.ok {
+      color: #00ff88;
+    }
 
-    /* Tab Navigation */
+    .status-chip-value.warn {
+      color: #ffaa00;
+    }
+
+    .status-chip-value.error {
+      color: #ff3366;
+    }
+
+    /* Tab Navigation Sidebar */
     .dev-tab-nav {
       display: flex;
-      gap: 8px;
-      padding: 14px 24px;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 10px;
+      width: 180px;
+      background: rgba(0, 0, 0, 0.2);
+      border-right: 1px solid rgba(0, 200, 255, 0.1);
       flex-shrink: 0;
+      overflow-y: auto;
     }
 
     .dev-tab-btn {
-      flex: 1;
-      padding: 14px 20px;
+      width: 100%;
+      padding: 12px 14px;
+      text-align: left;
       border: 1px solid rgba(0, 200, 255, 0.12);
-      border-radius: 12px;
+      border-radius: 8px;
       background: linear-gradient(145deg, #111827, #0d1320);
       color: #6b7fa3;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -894,9 +1028,10 @@
     /* Tab Content */
     .dev-tab-content {
       flex: 1;
-      padding: 0 24px 24px;
+      padding: 12px;
       min-height: 0;
       display: none;
+      overflow-y: auto;
     }
 
     .dev-tab-content.active {
@@ -907,8 +1042,8 @@
     .dev-panel {
       background: linear-gradient(145deg, #111827 0%, #0d1320 100%);
       border: 1px solid rgba(0, 200, 255, 0.12);
-      border-radius: 14px;
-      padding: 24px;
+      border-radius: 8px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -916,13 +1051,13 @@
     }
 
     .dev-panel-title {
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 700;
       color: #00d4ff;
       text-transform: uppercase;
       letter-spacing: 2px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
       border-bottom: 1px solid rgba(0, 200, 255, 0.1);
     }
 
@@ -933,11 +1068,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 8px;
     }
 
     .battery-percent {
-      font-size: 72px;
+      font-size: 48px;
       font-weight: 800;
       line-height: 1;
       background: linear-gradient(135deg, #00ff88, #00d4ff);
@@ -956,7 +1091,7 @@
 
     .battery-bar-outer {
       width: 80%;
-      height: 18px;
+      height: 12px;
       background: #1a2236;
       border-radius: 10px;
       border: 1px solid rgba(0, 200, 255, 0.15);
@@ -1017,8 +1152,17 @@
     }
 
     @keyframes dot-pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.7; }
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+      }
     }
 
     .map-placeholder-text {
@@ -1040,19 +1184,37 @@
 
     .teleop-keys {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
       width: fit-content;
     }
 
+    .teleop-btn.rotate-btn {
+      border-color: rgba(0, 255, 170, 0.2);
+    }
+
+    .teleop-btn.rotate-btn:hover {
+      border-color: rgba(0, 255, 170, 0.4);
+      color: #00ffaa;
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.15);
+    }
+
+    .teleop-btn.rotate-btn:active,
+    .teleop-btn.rotate-btn.pressed {
+      background: linear-gradient(145deg, #00ffaa, #00cc88);
+      color: #0a0e1a;
+      border-color: #00ffaa;
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.4);
+    }
+
     .teleop-btn {
-      width: 70px;
-      height: 70px;
+      width: 40px;
+      height: 40px;
       border: 1px solid rgba(0, 200, 255, 0.2);
-      border-radius: 12px;
+      border-radius: 6px;
       background: linear-gradient(145deg, #141c30, #0f1524);
       color: #a0b4d0;
-      font-size: 22px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -1069,7 +1231,8 @@
       box-shadow: 0 0 15px rgba(0, 200, 255, 0.15);
     }
 
-    .teleop-btn:active, .teleop-btn.pressed {
+    .teleop-btn:active,
+    .teleop-btn.pressed {
       background: linear-gradient(145deg, #00d4ff, #0099cc);
       color: #0a0e1a;
       border-color: #00d4ff;
@@ -1086,7 +1249,8 @@
       box-shadow: 0 0 15px rgba(255, 51, 102, 0.15);
     }
 
-    .teleop-btn.stop-btn:active, .teleop-btn.stop-btn.pressed {
+    .teleop-btn.stop-btn:active,
+    .teleop-btn.stop-btn.pressed {
       background: linear-gradient(145deg, #ff3366, #cc1a4a);
       color: white;
       border-color: #ff3366;
@@ -1105,9 +1269,9 @@
 
     /* Teleop enlarged for full tab view */
     .dev-tab-content .teleop-btn {
-      width: 90px;
-      height: 90px;
-      font-size: 26px;
+      width: 72px;
+      height: 72px;
+      font-size: 24px;
     }
   </style>
 </head>
@@ -1118,55 +1282,77 @@
   <div id="faceContainer"
     class="face-container breathing relative w-full h-full flex flex-col items-center justify-center">
 
-    <!-- Eyes Container -->
-    <div class="eyes-container-wrap flex items-center justify-center gap-64">
+    <!-- Scale Wrapper for 7-inch displays -->
+    <div class="flex flex-col items-center justify-center w-full h-full transform scale-[0.85]">
 
-      <!-- Left Eye -->
-      <div id="leftEye" class="eye-socket left-eye">
-        <div class="eyelid eyelid-top" id="leftEyelidTop"></div>
-        <div class="eyeball" id="leftEyeball">
-          <div class="iris" id="leftIris">
-            <div class="pupil" id="leftPupil"></div>
+      <!-- Eyes Container -->
+      <div class="eyes-container-wrap flex items-center justify-center gap-80">
+
+        <!-- Left Eye -->
+        <div id="leftEye" class="eye-socket left-eye">
+          <div class="eyelid eyelid-top" id="leftEyelidTop"></div>
+          <div class="eyeball" id="leftEyeball">
+            <div class="iris" id="leftIris">
+              <div class="pupil" id="leftPupil"></div>
+            </div>
           </div>
+          <div class="eyelid eyelid-bottom" id="leftEyelidBottom"></div>
         </div>
-        <div class="eyelid eyelid-bottom" id="leftEyelidBottom"></div>
-      </div>
 
-      <!-- Right Eye -->
-      <div id="rightEye" class="eye-socket right-eye">
-        <div class="eyelid eyelid-top" id="rightEyelidTop"></div>
-        <div class="eyeball" id="rightEyeball">
-          <div class="iris" id="rightIris">
-            <div class="pupil" id="rightPupil"></div>
+        <!-- Right Eye -->
+        <div id="rightEye" class="eye-socket right-eye">
+          <div class="eyelid eyelid-top" id="rightEyelidTop"></div>
+          <div class="eyeball" id="rightEyeball">
+            <div class="iris" id="rightIris">
+              <div class="pupil" id="rightPupil"></div>
+            </div>
           </div>
+          <div class="eyelid eyelid-bottom" id="rightEyelidBottom"></div>
         </div>
-        <div class="eyelid eyelid-bottom" id="rightEyelidBottom"></div>
+
       </div>
 
-    </div>
+      <!-- Battery Warning Overlay -->
+      <div id="batteryWarning" class="battery-warning">
+        <svg viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg">
+          <!-- Battery body -->
+          <rect class="battery-body" x="8" y="14" width="48" height="36" rx="4" ry="4" />
+          <!-- Battery cap (positive terminal) -->
+          <rect class="battery-cap" x="56" y="23" width="9" height="18" rx="2" ry="2" />
+          <!-- Low charge level bar (full vertical) -->
+          <rect class="battery-level" x="13" y="18" width="9" height="28" rx="1" ry="1" />
+        </svg>
+        <span class="battery-warning-text">LOW BATTERY</span>
+      </div>
 
-    <!-- Battery Warning Overlay -->
-    <div id="batteryWarning" class="battery-warning">
-      <svg viewBox="0 0 72 64" xmlns="http://www.w3.org/2000/svg">
-        <!-- Battery body -->
-        <rect class="battery-body" x="8" y="14" width="48" height="36" rx="4" ry="4" />
-        <!-- Battery cap (positive terminal) -->
-        <rect class="battery-cap" x="56" y="23" width="9" height="18" rx="2" ry="2" />
-        <!-- Low charge level bar (full vertical) -->
-        <rect class="battery-level" x="13" y="18" width="9" height="28" rx="1" ry="1" />
-      </svg>
-      <span class="battery-warning-text">LOW BATTERY</span>
-    </div>
-
-    <!-- Mouth -->
-    <div id="mouthContainer" class="mouth-container">
-      <div id="mouthOuter" class="mouth-outer">
-        <div id="mouthInner" class="mouth-inner">
-          <div id="mouthCore" class="mouth-core"></div>
+      <!-- Mouth -->
+      <div id="mouthContainer" class="mouth-container">
+        <div id="mouthOuter" class="mouth-outer">
+          <svg viewBox="-100 -50 200 100" style="overflow: visible; width: 100%; height: 100%;">
+            <defs>
+              <!-- Outer Gradient -->
+              <radialGradient id="mouthOuterGrad" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#2a2a2a" />
+                <stop offset="80%" stop-color="#0a0a0a" />
+              </radialGradient>
+              <!-- Inner Gradient -->
+              <radialGradient id="mouthInnerGrad" cx="50%" cy="40%" r="70%">
+                <stop offset="0%" stop-color="#1a1a1a" />
+                <stop offset="70%" stop-color="#000000" />
+              </radialGradient>
+            </defs>
+            <path class="mouth-outer-path" d=""></path>
+            <path class="mouth-inner-path" d=""></path>
+            <path class="mouth-core-path" d=""></path>
+          </svg>
         </div>
       </div>
-    </div>
+
+    </div> <!-- End Scale Wrapper -->
   </div>
+
+  <!-- Dev Scan Line Effect -->
+  <div id="devScanLine" class="dev-scan-line"></div>
 
   <!-- Dev Screen Overlay -->
   <div id="devScreen" class="dev-screen">
@@ -1238,19 +1424,27 @@
         <div class="dev-panel">
           <div class="dev-panel-title">🎮 Teleop Control</div>
           <div class="teleop-grid">
-            <div>
+            <div class="flex flex-col items-center">
               <div class="teleop-keys">
                 <div class="teleop-btn empty"></div>
-                <button class="teleop-btn" data-dir="forward">W<br><span style="font-size:10px;opacity:0.4">▲</span></button>
+                <button class="teleop-btn rotate-btn" data-dir="rotate-left"><span
+                    style="display:inline-block;transform:rotate(-90deg)">↺</span></button>
+                <button class="teleop-btn" data-dir="forward">▲</button>
+                <button class="teleop-btn rotate-btn" data-dir="rotate-right"><span
+                    style="display:inline-block;transform:rotate(90deg)">↻</span></button>
                 <div class="teleop-btn empty"></div>
-                <button class="teleop-btn" data-dir="left">A<br><span style="font-size:10px;opacity:0.4">◄</span></button>
+                <div class="teleop-btn empty"></div>
+                <button class="teleop-btn" data-dir="left">◄</button>
                 <button class="teleop-btn stop-btn" data-dir="stop">■</button>
-                <button class="teleop-btn" data-dir="right">D<br><span style="font-size:10px;opacity:0.4">►</span></button>
+                <button class="teleop-btn" data-dir="right">►</button>
                 <div class="teleop-btn empty"></div>
-                <button class="teleop-btn" data-dir="backward">S<br><span style="font-size:10px;opacity:0.4">▼</span></button>
+                <div class="teleop-btn empty"></div>
+                <div class="teleop-btn empty"></div>
+                <button class="teleop-btn" data-dir="backward">▼</button>
+                <div class="teleop-btn empty"></div>
                 <div class="teleop-btn empty"></div>
               </div>
-              <div class="teleop-hint">Use W A S D keys or click buttons • Space = Stop</div>
+              <div class="teleop-hint">w/x = Forward/Back • a/d = Rotate • Shift+A/D = Strafe • s/Space = Stop</div>
             </div>
           </div>
         </div>
@@ -1316,8 +1510,6 @@
       // Mouth
       mouthContainer: document.getElementById('mouthContainer'),
       mouthOuter: document.getElementById('mouthOuter'),
-      mouthInner: document.getElementById('mouthInner'),
-      mouthCore: document.getElementById('mouthCore'),
       // Face
       faceContainer: document.getElementById('faceContainer')
     };
@@ -1375,9 +1567,6 @@
         this.stopTalking();
         // Remove all mouth shape states
         this.allStates.forEach(s => UI.mouthContainer.classList.remove(s));
-        // Reset inline styles
-        UI.mouthOuter.style.width = '';
-        UI.mouthOuter.style.height = '';
       },
 
       setSmile() {
@@ -1402,13 +1591,127 @@
       }
     };
 
+    // ==========================================
+    // IDLE ANIMATOR — micro-animations for liveliness
+    // ==========================================
+    const IdleAnimator = {
+      _gazeInterval: null,
+      _squintTimeout: null,
+      _active: false,
+
+      start() {
+        if (this._active) return;
+        this._active = true;
+
+        // Add CSS animation classes
+        document.querySelectorAll('.pupil').forEach(p => p.classList.add('idle-pulse'));
+        allIrises.forEach(iris => iris.classList.add('idle-shimmer'));
+        UI.mouthContainer.classList.add('idle-breathe');
+        [UI.leftEye, UI.rightEye].forEach(eye => eye.classList.add('idle-glow'));
+
+        // Start subtle random eye gaze drift
+        this._startGazeDrift();
+
+        // Start occasional micro-squints
+        this._scheduleMicroSquint();
+      },
+
+      stop() {
+        this._active = false;
+
+        // Remove CSS animation classes
+        document.querySelectorAll('.pupil').forEach(p => p.classList.remove('idle-pulse'));
+        allIrises.forEach(iris => iris.classList.remove('idle-shimmer'));
+        UI.mouthContainer.classList.remove('idle-breathe');
+        [UI.leftEye, UI.rightEye].forEach(eye => eye.classList.remove('idle-glow'));
+
+        // Clear gaze drift
+        if (this._gazeInterval) {
+          clearInterval(this._gazeInterval);
+          this._gazeInterval = null;
+        }
+
+        // Clear micro-squint
+        if (this._squintTimeout) {
+          clearTimeout(this._squintTimeout);
+          this._squintTimeout = null;
+        }
+
+        // Reset iris position
+        allIrises.forEach(iris => {
+          iris.style.transform = 'translate(-50%, -50%)';
+        });
+      },
+
+      _startGazeDrift() {
+        const drift = () => {
+          if (!this._active) return;
+          // Random small offset (-8 to 8 px)
+          const x = (Math.random() - 0.5) * 16;
+          const y = (Math.random() - 0.5) * 10;
+          allIrises.forEach(iris => {
+            iris.style.transition = 'transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            iris.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+          });
+
+          // Occasionally return to center
+          if (Math.random() < 0.3) {
+            setTimeout(() => {
+              if (!this._active) return;
+              allIrises.forEach(iris => {
+                iris.style.transform = 'translate(-50%, -50%)';
+              });
+            }, 1500);
+          }
+        };
+
+        // Drift every 3-6 seconds
+        this._gazeInterval = setInterval(drift, 3000 + Math.random() * 3000);
+        // Start first drift after a short delay
+        setTimeout(drift, 1000);
+      },
+
+      _scheduleMicroSquint() {
+        if (!this._active) return;
+        // Random delay: 8-15 seconds
+        const delay = 8000 + Math.random() * 7000;
+
+        this._squintTimeout = setTimeout(() => {
+          if (!this._active) return;
+
+          // Tiny eyelid droop — very subtle
+          allEyelidTops.forEach(lid => {
+            lid.style.transition = 'transform 0.6s ease';
+            lid.style.transform = 'translateY(-82%)';
+          });
+
+          // Return to open after a moment
+          setTimeout(() => {
+            if (!this._active) return;
+            allEyelidTops.forEach(lid => {
+              lid.style.transition = 'transform 0.5s ease';
+              lid.style.transform = 'translateY(-100%)';
+            });
+          }, 400 + Math.random() * 300);
+
+          // Schedule next micro-squint
+          this._scheduleMicroSquint();
+        }, delay);
+      }
+    };
+
     const EyeController = {
       // Reset all eyelid and eyeball states
       resetAll() {
+        // Stop idle animations
+        IdleAnimator.stop();
+
         // Clear eyelid states
         const lidStates = ['closed', 'squint', 'droop', 'droop-straight', 'wide', 'happy-anim', 'hidden-up', 'scan-squint'];
         allEyelids.forEach(lid => {
           lidStates.forEach(s => lid.classList.remove(s));
+          lid.style.transform = '';
+          lid.style.transition = '';
         });
 
         // Clear warning glow
@@ -1422,25 +1725,38 @@
         // Clear eyeball states
         allEyeballs.forEach(eb => {
           eb.style.transform = '';
+          eb.style.transition = '';
         });
 
-        // Clear iris animations
+        // Cancel any pending return-to-center from moveByDirection
+        if (EyeController._eyeReturnTimeout) {
+          clearTimeout(EyeController._eyeReturnTimeout);
+          EyeController._eyeReturnTimeout = null;
+        }
+
+        // Clear iris animations and gracefully return to center
         allIrises.forEach(iris => {
           iris.classList.remove('scanning', 'thinking');
+          iris.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+          iris.style.transform = 'translate(-50%, -50%)';
+          iris.style.width = '';
+          iris.style.height = '';
+
+          // Clear inline transition after animation finishes to let CSS take over
+          setTimeout(() => {
+            if (iris.style.transform === 'translate(-50%, -50%)') {
+              iris.style.transition = '';
+            }
+          }, 500);
         });
+
+        // Clear mouth scanning
+        UI.mouthContainer.classList.remove('scanning');
 
         // Clear eye socket scanning
         [UI.leftEye, UI.rightEye].forEach(eye => {
           eye.classList.remove('scanning');
           eye.style.transform = '';
-        });
-
-
-        // Reset iris
-        allIrises.forEach(iris => {
-          iris.style.transform = 'translate(-50%, -50%)';
-          iris.style.width = '';
-          iris.style.height = '';
         });
 
         // Remove star particles
@@ -1526,8 +1842,10 @@
         // Eye sockets tilt to follow scan direction
         UI.leftEye.classList.add('scanning');
         UI.rightEye.classList.add('scanning');
-        // Slight eyelid squint for focus
-        allEyelidTops.forEach(lid => lid.classList.add('scan-squint'));
+        // Mouth tilt to follow scan direction
+        UI.mouthContainer.classList.add('scanning');
+        // Focused eyelid squint for finding look
+        allEyelids.forEach(lid => lid.classList.add('scan-squint'));
       },
 
 
@@ -1718,6 +2036,7 @@
           case 'idle':
             EyeController.setIdle();
             MouthController.setSmile();
+            IdleAnimator.start();
             break;
 
           case 'happy':
@@ -1779,8 +2098,10 @@
       timeWindow: 3000, // ms
 
       init() {
-        UI.leftEye.addEventListener('click', () => this.registerTap('left'));
-        UI.rightEye.addEventListener('click', () => this.registerTap('right'));
+        ['click', 'touchstart'].forEach(evt => {
+          UI.leftEye.addEventListener(evt, (e) => { e.preventDefault(); this.registerTap('left'); });
+          UI.rightEye.addEventListener(evt, (e) => { e.preventDefault(); this.registerTap('right'); });
+        });
       },
 
       registerTap(eye) {
@@ -1792,7 +2113,7 @@
 
         // Check if both eyes have enough taps
         if (this.taps.left.length >= this.requiredTaps &&
-            this.taps.right.length >= this.requiredTaps) {
+          this.taps.right.length >= this.requiredTaps) {
           this.taps.left = [];
           this.taps.right = [];
           DevScreenController.toggle();
@@ -1833,20 +2154,25 @@
           });
         });
 
-        // Keyboard teleop (WASD + Space)
+        // Keyboard teleop — matches teleop_keyboard.py
+        // w/W = forward, x/X = backward, a = rotate-left, d = rotate-right
+        // A (shift) = strafe left, D (shift) = strafe right, s/S/Space = stop
         this._keyHandler = (e) => {
           if (!this.isVisible || e.repeat) return;
           const keyMap = {
-            'w': 'forward', 'W': 'forward', 'ArrowUp': 'forward',
-            's': 'backward', 'S': 'backward', 'ArrowDown': 'backward',
-            'a': 'left', 'A': 'left', 'ArrowLeft': 'left',
-            'd': 'right', 'D': 'right', 'ArrowRight': 'right',
-            ' ': 'stop'
+            'w': 'forward', 'W': 'forward',
+            'x': 'backward', 'X': 'backward',
+            'a': 'rotate-left',
+            'd': 'rotate-right',
+            'A': 'left',
+            'D': 'right',
+            's': 'stop', 'S': 'stop', ' ': 'stop',
+            'ArrowUp': 'forward', 'ArrowDown': 'backward',
+            'ArrowLeft': 'left', 'ArrowRight': 'right'
           };
           if (keyMap[e.key]) {
             e.preventDefault();
             this.sendTeleop(keyMap[e.key]);
-            // Highlight corresponding button
             const btn = this.el.querySelector(`.teleop-btn[data-dir="${keyMap[e.key]}"]`);
             if (btn) btn.classList.add('pressed');
           }
@@ -1855,11 +2181,15 @@
         this._keyUpHandler = (e) => {
           if (!this.isVisible) return;
           const keyMap = {
-            'w': 'forward', 'W': 'forward', 'ArrowUp': 'forward',
-            's': 'backward', 'S': 'backward', 'ArrowDown': 'backward',
-            'a': 'left', 'A': 'left', 'ArrowLeft': 'left',
-            'd': 'right', 'D': 'right', 'ArrowRight': 'right',
-            ' ': 'stop'
+            'w': 'forward', 'W': 'forward',
+            'x': 'backward', 'X': 'backward',
+            'a': 'rotate-left',
+            'd': 'rotate-right',
+            'A': 'left',
+            'D': 'right',
+            's': 'stop', 'S': 'stop', ' ': 'stop',
+            'ArrowUp': 'forward', 'ArrowDown': 'backward',
+            'ArrowLeft': 'left', 'ArrowRight': 'right'
           };
           if (keyMap[e.key]) {
             const dir = keyMap[e.key];
@@ -1880,10 +2210,26 @@
 
       show() {
         this.isVisible = true;
-        // Update expression status
         document.getElementById('devStatusExpr').textContent = State.currentExpression;
-        this.el.style.display = 'flex';
-        requestAnimationFrame(() => this.el.classList.add('active'));
+
+        // Scan line sweep
+        const scanLine = document.getElementById('devScanLine');
+        scanLine.classList.remove('sweep');
+        void scanLine.offsetWidth; // force reflow
+        scanLine.classList.add('sweep');
+
+        // Open animation
+        this.el.classList.remove('closing');
+        this.el.classList.add('visible', 'opening');
+
+        // Staggered content reveal
+        setTimeout(() => this.el.classList.add('reveal'), 150);
+
+        // Clean up animation class
+        this.el.addEventListener('animationend', () => {
+          this.el.classList.remove('opening');
+        }, { once: true });
+
         console.log('Dev screen opened');
       },
 
@@ -1900,11 +2246,17 @@
 
       hide() {
         this.isVisible = false;
-        this.el.classList.remove('active');
-        // Wait for fade-out transition
-        setTimeout(() => {
-          if (!this.isVisible) this.el.style.display = 'none';
-        }, 300);
+        this.el.classList.remove('reveal');
+
+        // Close animation
+        this.el.classList.add('closing');
+
+        this.el.addEventListener('animationend', () => {
+          if (!this.isVisible) {
+            this.el.classList.remove('visible', 'closing');
+          }
+        }, { once: true });
+
         console.log('Dev screen closed');
       },
 
