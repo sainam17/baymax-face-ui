@@ -3,7 +3,7 @@ pi5_face_service.py — FastAPI service: /face_emotion endpoint only
 Runs on the Raspberry Pi 5 alongside the BayMax Electron face app.
 
 Run with:
-    uvicorn pi5_face_service:app --host 0.0.0.0 --port 8767
+    uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000
 
 The Electron face window exposes:
     window.setExpression(expr)   (via executeJavaScript IPC in main.js)
@@ -181,4 +181,4 @@ def health():
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8767)
+    uvicorn.run(app, host="0.0.0.0", port=7000)

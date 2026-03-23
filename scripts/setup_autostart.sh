@@ -20,7 +20,7 @@ After=network.target
 Type=simple
 User=$USER_NAME
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$VENV_DIR/bin/uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 8767
+ExecStart=$VENV_DIR/bin/uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000
 Restart=always
 RestartSec=5
 
