@@ -2,6 +2,9 @@
 node_modules/
 package-lock.json
 
+# Docs (internal)
+docs/Design.md
+docs/progress.md
 # Electron
 dist/
 out/
@@ -23,6 +26,11 @@ Thumbs.db
 # Environment
 .env
 .env.*
+
+# Python
+venv/
+__pycache__/
+*.pyc
 
 # AI assistants
 .gemini/
