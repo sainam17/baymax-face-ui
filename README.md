@@ -1,210 +1,78 @@
 # BayMax Robot Face UI
 
-A BayMax-inspired robot face interface built with Electron and Tailwind CSS for a 7-inch display. Perfect for friendly human-robot interaction in your capstone project.
+A BayMax-inspired robot face interface built with **Electron** and **FastAPI** for a 7-inch display. Optimized for Raspberry Pi 5.
 
-## Features
+---
 
-- **BayMax-inspired Design**: Minimalist white face with expressive oval eyes
-- **Multiple Expressions**: Idle, Happy, Thinking, Scanning, Talking, Surprised
-- **Smooth Animations**: Natural blinking, eye movements, and transitions
-- **Fullscreen Mode**: Optimized for 7-inch touchscreen displays
-- **Easy Integration**: Ready for ROS2 and LLM communication
-- **Control API**: JavaScript API for external control
+## 🌟 Features
 
-## Prerequisites
+- **BayMax Design**: Minimalist white face with expressive oval eyes.
+- **Multiple Expressions**: Idle, Happy, Thinking, Scanning, Talking.
+- **Background API**: FastAPI service on **Port 7000** for remote control.
+- **Autostart**: Automated scripts to launch the face on boot.
+- **Fullscreen**: Clean, borderless UI for embedded displays.
 
-- Node.js (v16 or higher)
-- npm or yarn
-- Ubuntu/Linux OS
+---
 
-## Installation
+## 📖 Documentation & Tutorial
+
+Looking for a step-by-step guide? Check out the **[Quick Start & Tutorial](docs/QUICKSTART.md)**.
+
+Other documents:
+- **[Installation Guide](docs/INSTALLATION.md)**: Manual setup and systemd details.
+- **[Design Spec](docs/Design.md)**: API endpoints and emotion mapping.
+- **[Progress Log](docs/progress.md)**: Development history and sprint status.
+
+---
+
+## 🛠 Quick Installation
 
 ```bash
-# Navigate to project directory
 cd baymax-face-ui
-
-# Install dependencies
-npm install
-
-# For development with DevTools
-npm run dev
-
-# For production (fullscreen, no DevTools)
-npm start
+chmod +x scripts/setup_autostart.sh
+sudo ./scripts/setup_autostart.sh
 ```
 
-## Project Structure
+---
+
+## 📂 Project Structure
 
 ```
 baymax-face-ui/
 ├── src/
-│   ├── main.js              # Electron main process
-│   ├── index.html           # Face UI with animations
-│   └── control.html         # Control panel
-├── integrations/
-│   ├── llm-integration.js   # LLM integration example
-│   └── ros2-bridge.js       # ROS2 bridge example
+│   ├── index.html           # Face UI (HTML/CSS)
+│   ├── main.js              # Electron Main Process
+│   └── pi5_face_service.py  # Backend API (Port 7000)
 ├── scripts/
-│   ├── install.sh           # Full installation script
-│   ├── setup.sh             # Quick setup script
-│   └── check-system.sh      # System diagnostics
+│   ├── setup_autostart.sh   # Autostart configuration
+│   ├── set_face.js          # IPC helper
+│   ├── install.sh           # Main installer
+│   └── setup.sh             # Dependency installer
 ├── docs/
-│   ├── INSTALLATION.md      # Detailed install guide
-│   ├── QUICKSTART.md        # Quick start reference
-│   └── COMMANDS.md          # Command reference
+│   ├── QUICKSTART.md        # <-- RECOMMENDED TUTORIAL
+│   ├── INSTALLATION.md      # Full setup guide
+│   ├── Design.md            # Hardware/API spec
+│   └── progress.md          # Development log
 ├── .gitignore
 ├── LICENSE
-├── package.json             # Project dependencies
+├── package.json
 └── README.md                # This file
 ```
 
-## Usage
+---
 
-### Running the Application
+## 🚀 Usage
 
+### To start manually:
+1. **Frontend**: `npm start`
+2. **Backend**: `uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000`
+
+### To test expressions:
 ```bash
-npm start
+curl -X POST http://localhost:7000/face_emotion -H "Content-Type: application/json" -d '{"emotion": 2}'
 ```
 
-Press **ESC** to exit fullscreen mode during testing.
+---
 
-### Control Panel
-
-The UI includes a bottom control panel with buttons to test different expressions:
-- **Idle**: Default resting state with occasional blinking
-- **Happy**: Squinting eyes in a friendly manner
-- **Thinking**: Eyes moving slightly, processing state
-- **Scanning**: Eyes shifting side to side
-- **Talking**: Pulsing glow effect while speaking
-- **Blink**: Manual blink trigger
-
-### JavaScript API
-
-Control the face programmatically using the `window.robotFace` API:
-
-```javascript
-// Change expression
-window.robotFace.setExpression('happy');
-window.robotFace.setExpression('thinking');
-window.robotFace.setExpression('scanning');
-window.robotFace.setExpression('talking');
-
-// Trigger a blink
-window.robotFace.blink();
-
-// Update status text
-window.robotFace.setStatus('Listening...');
-```
-
-## Future ROS2 Integration
-
-To integrate with ROS2:
-
-1. Use Electron's IPC (Inter-Process Communication) to communicate between main and renderer processes
-2. Create a Node.js ROS2 bridge in `src/main.js` using `rclnodejs`
-3. Subscribe to ROS2 topics and send updates to the renderer (see `integrations/ros2-bridge.js`):
-
-```javascript
-// Example in src/main.js
-const rclnodejs = require('rclnodejs');
-
-// Initialize ROS2 node
-rclnodejs.init().then(() => {
-  const node = rclnodejs.createNode('baymax_face_node');
-  
-  // Subscribe to expression topic
-  const subscription = node.createSubscription(
-    'std_msgs/msg/String',
-    '/robot/expression',
-    (msg) => {
-      // Send to renderer process
-      mainWindow.webContents.send('change-expression', msg.data);
-    }
-  );
-});
-
-// In renderer (src/index.html), add IPC listener
-const { ipcRenderer } = require('electron');
-ipcRenderer.on('change-expression', (event, expression) => {
-  window.robotFace.setExpression(expression);
-});
-```
-
-## Future LLM Integration
-
-For LLM communication:
-
-1. Set expression to 'thinking' when processing user input
-2. Set to 'talking' when speaking response
-3. Update status indicator with current state
-
-```javascript
-// Example workflow
-window.robotFace.setStatus('Listening...');
-window.robotFace.setExpression('idle');
-
-// User speaks...
-window.robotFace.setStatus('Processing...');
-window.robotFace.setExpression('thinking');
-
-// LLM responds...
-window.robotFace.setStatus('Speaking...');
-window.robotFace.setExpression('talking');
-```
-
-## Customization
-
-### Adjusting for Different Screen Sizes
-
-Edit the face size in `src/index.html`:
-
-```html
-<!-- Change w-96 h-96 to your preferred size -->
-<div class="relative w-96 h-96 bg-gradient-to-br...">
-```
-
-For 7-inch displays (typically 1024x600), the current size (384px) works well.
-
-### Hiding the Control Panel
-
-Remove or comment out the control panel section in `src/index.html`:
-
-```html
-<!-- Control Panel (for testing - can be hidden in production) -->
-<!-- Comment out this entire section for production -->
-```
-
-### Adding New Expressions
-
-1. Add a new animation in the `<style>` section of `src/index.html`
-2. Create a new case in the `setExpression()` function
-3. Define eye size and animation class
-
-## Performance Notes
-
-- Animations use CSS transforms for smooth 60fps rendering
-- Low CPU usage (~2-5% on modern hardware)
-- Optimized for embedded systems and Raspberry Pi
-
-## Troubleshooting
-
-**Black screen on startup:**
-- Check console for errors with `npm run dev`
-- Ensure all file paths are correct
-
-**App won't go fullscreen:**
-- Check `src/main.js` fullscreen setting
-- Verify display resolution matches window size
-
-**Animations are choppy:**
-- Reduce animation complexity
-- Check system resources
-- Update graphics drivers
-
-## License
-
-MIT License - feel free to use in your capstone project!
-
-## Credits
-
-Inspired by BayMax from Disney's "Big Hero 6"
+## ⚖️ License
+MIT License - feel free to use in your capstone project! 🤖💙

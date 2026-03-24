@@ -1,185 +1,99 @@
-# 🤖 BayMax Face UI - Quick Start Guide
+# 🤖 BayMax Face UI — Quick Start & Tutorial
 
-## Installation (Ubuntu)
+This guide will help you get the BayMax face up and running on your Raspberry Pi 5 in minutes.
 
-### Step 1: Install Node.js (if not already installed)
-```bash
-sudo apt update
-sudo apt install nodejs npm -y
-node --version  # Should be v16 or higher
-```
+---
 
-### Step 2: Navigate to project and install dependencies
+## 🛠 Prerequisites
+- **OS**: Raspberry Pi OS (64-bit) or Ubuntu.
+- **Node.js**: v20 or higher.
+- **Python**: 3.10 or higher.
+
+---
+
+## 🚀 1. Fast Setup (The "One-Click" Way)
+
+If you just want everything to work, run the automated setup:
+
 ```bash
 cd baymax-face-ui
-./scripts/setup.sh
+chmod +x scripts/setup_autostart.sh
+sudo ./scripts/setup_autostart.sh
 ```
 
-Or manually:
-```bash
-npm install
-```
+**What this does:**
+1. Sets up the **Backend** (port 7000) to start automatically in the background.
+2. Sets up the **Frontend** (Face UI) to "pop up" automatically when you log in.
 
-### Step 3: Run the application
+---
+
+## 💻 2. Manual Start (For Development)
+
+If you are editing code and want to run things manually:
+
+### Part A: Start the Face UI
 ```bash
-# Production mode (fullscreen)
+cd baymax-face-ui
 npm start
-
-# Development mode (with console)
-npm run dev
 ```
+*   **Keyboard Shortcut**: Press `ESC` at any time to quit the app.
+*   **Note**: The app starts a bridge on `127.0.0.1:8768` to talk to the backend.
 
-**Press ESC to exit**
-
----
-
-## Testing the Face
-
-Once running, you'll see:
-- A white circular face with two black oval eyes (BayMax style)
-- Control panel at the bottom to test expressions
-- Status indicator at top-right
-
-### Available Expressions:
-1. **Idle** - Default calm state with occasional blinking
-2. **Happy** - Squinting eyes, friendly look
-3. **Thinking** - Slight eye movement, processing
-4. **Scanning** - Eyes moving side to side
-5. **Talking** - Pulsing glow effect
-6. **Surprised** - Wide eyes
-
----
-
-## Screen Configuration (7-inch Display)
-
-### For Raspberry Pi or embedded Linux:
-
-1. Set display resolution:
+### Part B: Start the Emotion API
+Open a **new terminal**:
 ```bash
-# Edit boot config
-sudo nano /boot/config.txt
-
-# Add these lines:
-hdmi_group=2
-hdmi_mode=87
-hdmi_cvt=1024 600 60 6 0 0 0
+cd baymax-face-ui
+source venv/bin/activate
+uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000
 ```
 
-2. Auto-start on boot:
+---
+
+## 🧪 3. Tutorial: How to control the face
+
+Once both parts are running, you can change BayMax's expression using a simple command from **any** computer on your network (or the Pi itself).
+
+### Change Expression (curl)
+Open a terminal and run one of these:
+
 ```bash
-# Create desktop entry
-mkdir -p ~/.config/autostart
-nano ~/.config/autostart/baymax-face.desktop
+# Happy BayMax
+curl -X POST http://localhost:7000/face_emotion -H "Content-Type: application/json" -d '{"emotion": 2}'
+
+# Talking BayMax
+curl -X POST http://localhost:7000/face_emotion -H "Content-Type: application/json" -d '{"emotion": 3}'
+
+# Thinking BayMax
+curl -X POST http://localhost:7000/face_emotion -H "Content-Type: application/json" -d '{"emotion": 4}'
 ```
 
-Add:
-```
-[Desktop Entry]
-Type=Application
-Name=BayMax Face
-Exec=/usr/bin/npm start --prefix /path/to/baymax-face-ui
-```
+### Emotion Code Reference
+| Code | Expression | Description |
+|:---:|:---:|---|
+| `0` | **Idle** | Default calm state |
+| `1` | **Scanning** | Eyes moving left-right |
+| `2` | **Happy** | Friendly squinting eyes |
+| `3` | **Talking** | Animated mouth (for speaking) |
+| `4` | **Thinking** | Loading/Processing look |
 
 ---
 
-## Next Steps
-
-### 1. For ROS2 Integration:
-- See `integrations/ros2-bridge.js` for example code
-- Install: `npm install rclnodejs --break-system-packages`
-- Uncomment and configure ROS2 topics
-
-### 2. For LLM Integration:
-- See `integrations/llm-integration.js` for example code
-- Integrate with your speech recognition
-- Connect to your LLM service
-- Use IPC events to control face
-
-### 3. Customize the face:
-- Edit `src/index.html` to change colors, size, or animations
-- Modify eye shapes and movements
-- Add new expressions
+## 📂 Project Summary
+- `src/index.html`: The actual face design (HTML/CSS).
+- `src/pi5_face_service.py`: The Python API (Port 7000).
+- `src/main.js`: The Electron engine.
+- `docs/INSTALLATION.md`: Full technical details.
 
 ---
 
-## Troubleshooting
+## ❓ Frequently Asked Questions
 
-**Problem: "electron: command not found"**
-```bash
-npm install
-```
+**Q: Can I still edit code while it's running?**  
+Yes! The autostart runs in the background. You can open `VS Code` or another terminal and edit `src/index.html` anytime.
 
-**Problem: Screen is too small/large**
-- Edit face size in `src/index.html` (search for `w-96 h-96`)
-- Adjust to `w-80 h-80` (smaller) or `w-[500px] h-[500px]` (larger)
+**Q: How do I stop the autostart?**  
+- Backend: `sudo systemctl stop baymax-emotion`
+- Frontend: Remove file `~/.config/autostart/baymax-face.desktop`
 
-**Problem: Can't exit fullscreen**
-- Press ESC key
-- Or force quit: Ctrl+Alt+F2, then `pkill electron`
-
-**Problem: Black screen**
-```bash
-npm run dev  # Run with console to see errors
-```
-
----
-
-## Development Tips
-
-### Control via JavaScript Console:
-```javascript
-window.robotFace.setExpression('happy');
-window.robotFace.setStatus('Custom status');
-window.robotFace.blink();
-```
-
-### Hide control panel for production:
-Comment out the control panel div in `src/index.html`
-
-### Test different expressions timing:
-```javascript
-// Sequence example
-window.robotFace.setExpression('thinking');
-setTimeout(() => window.robotFace.setExpression('happy'), 2000);
-setTimeout(() => window.robotFace.setExpression('idle'), 4000);
-```
-
----
-
-## Project Structure
-
-```
-baymax-face-ui/
-├── src/
-│   ├── main.js              # Electron app setup
-│   ├── index.html           # Face UI (edit for design)
-│   └── control.html         # Control panel
-├── integrations/
-│   ├── ros2-bridge.js       # ROS2 example (future)
-│   └── llm-integration.js   # LLM example (future)
-├── scripts/
-│   ├── install.sh           # Full installation script
-│   ├── setup.sh             # Quick setup script
-│   └── check-system.sh      # System diagnostics
-├── docs/
-│   ├── INSTALLATION.md      # Detailed install guide
-│   ├── QUICKSTART.md        # This file
-│   └── COMMANDS.md          # Command reference
-├── package.json             # Dependencies
-├── LICENSE                  # MIT license
-└── README.md                # Full documentation
-```
-
----
-
-## Support
-
-For issues or questions about:
-- **Electron**: https://www.electronjs.org/docs
-- **Tailwind CSS**: https://tailwindcss.com/docs
-- **ROS2**: https://docs.ros.org/en/humble/
-- **Your capstone project**: Good luck! 🎓
-
----
-
-**Created for your friendly robot capstone project! 🤖💙**
+**Q: I changed the code but the face didn't update.**  
+Restart the app. If using autostart, run `sudo systemctl restart baymax-emotion` for the backend, or just `npm start` manually for the frontend.
