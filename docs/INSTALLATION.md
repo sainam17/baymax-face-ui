@@ -95,18 +95,18 @@ pip install fastapi uvicorn
 #### 3. Run the service
 
 ```bash
-uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 8767
+uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000
 ```
 
 #### 4. Test it
 
 ```bash
 # Set face to Happy
-curl -X POST http://localhost:8767/face_emotion \
+curl -X POST http://localhost:7000/face_emotion \
      -H "Content-Type: application/json" -d '{"emotion": 2}'
 
 # Health check
-curl http://localhost:8767/health
+curl http://localhost:7000/health
 ```
 
 #### Emotion codes
@@ -141,7 +141,7 @@ This will:
 ```
 GPU Server  POST /face_emotion {emotion:N}
                ↓
-  pi5_face_service.py  :8767
+  pi5_face_service.py  :7000
                ↓  node scripts/set_face.js <expression>
   scripts/set_face.js
                ↓  POST 127.0.0.1:8768/set-expression
@@ -196,7 +196,7 @@ After=network.target baymax-face.service
 Type=simple
 User=YOUR_USERNAME
 WorkingDirectory=/path/to/baymax-face-ui
-ExecStart=/path/to/baymax-face-ui/venv/bin/uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 8767
+ExecStart=/path/to/baymax-face-ui/venv/bin/uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 7000
 Restart=always
 
 [Install]
@@ -214,16 +214,16 @@ sudo systemctl start baymax-emotion.service
 
 | Port | Service | Accessible from |
 |------|---------|----------------|
-| `8767` | FastAPI `/face_emotion` | Any host (GPU server → PI 5) |
+| `7000` | FastAPI `/face_emotion` | Any host (GPU server → PI 5) |
 | `8768` | Electron IPC bridge | `127.0.0.1` only (internal) |
 
 ---
 
 ## Troubleshooting
 
-**Port 8767 already in use:**
+**Port 7000 already in use:**
 ```bash
-fuser -k 8767/tcp
+fuser -k 7000/tcp
 ```
 
 **Electron black screen (headless):**
@@ -233,5 +233,5 @@ xvfb-run npm start
 
 **Check what's using a port:**
 ```bash
-lsof -i :8767
+lsof -i :7000
 ```
