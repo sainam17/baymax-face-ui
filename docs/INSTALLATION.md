@@ -1,19 +1,37 @@
-# Manual Installation Guide for Ubuntu
+# Installation Guide — BayMax Face UI
 
-This guide will help you install all necessary packages for the BayMax Face UI step by step.
-
-## Prerequisites
-
-- Ubuntu 20.04 or later (also works on Raspberry Pi OS)
-- Internet connection
-- Terminal access
-- sudo privileges
+> **Platform:** Ubuntu 22.04 / Raspberry Pi OS (64-bit)  
+> **Stack:** Electron (face UI) + FastAPI (emotion HTTP API)
 
 ---
 
-## Option 1: Automatic Installation (Recommended)
+## Project Structure
 
-Simply run the installation script:
+```
+baymax-face-ui/
+├── src/
+│   ├── index.html        # Robot face UI (fullscreen Electron window)
+│   ├── control.html      # Local control panel window
+│   ├── main.js           # Electron main process + IPC bridge (port 8768)
+│   └── pi5_face_service.py  # FastAPI /face_emotion endpoint
+├── scripts/
+│   ├── set_face.js       # CLI helper: pushes expression into Electron renderer
+│   ├── install.sh        # Auto-installer (Node + Electron deps)
+│   ├── setup.sh          # Quick setup helper
+│   └── check-system.sh   # Dependency checker
+├── docs/
+│   ├── Design.md         # API & system design spec
+│   ├── progress.md       # Sprint progress log
+│   ├── QUICKSTART.md     # Quick reference
+│   └── INSTALLATION.md   # This file
+└── package.json
+```
+
+---
+
+## Part 1 — Electron Face UI
+
+### Option A: Auto-install (recommended)
 
 ```bash
 cd baymax-face-ui
@@ -21,250 +39,113 @@ chmod +x scripts/install.sh scripts/check-system.sh
 ./scripts/install.sh
 ```
 
-The script will automatically install everything you need.
+### Option B: Manual
 
----
-
-## Option 2: Manual Installation
-
-If you prefer to install packages manually, follow these steps:
-
-### Step 1: Update System
+#### 1. Install Node.js 20.x
 
 ```bash
-sudo apt update
-sudo apt upgrade -y
-```
-
-### Step 2: Install Node.js and npm
-
-Check if Node.js is installed:
-```bash
-node --version
-npm --version
-```
-
-If not installed or version is below v16:
-
-**Method A: From Ubuntu repository (easier but older version)**
-```bash
-sudo apt install -y nodejs npm
-```
-
-**Method B: Using NodeSource (recommended for latest version)**
-```bash
-# Install Node.js 20.x (LTS)
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
-
-# Verify installation
-node --version  # Should show v20.x.x
-npm --version   # Should show 10.x.x
+node --version   # v20.x.x
 ```
 
-### Step 3: Install Build Tools
-
-These are required for compiling native modules:
-
-```bash
-sudo apt install -y build-essential
-```
-
-### Step 4: Install Electron System Dependencies
-
-Electron requires several system libraries:
+#### 2. Install system libraries required by Electron
 
 ```bash
 sudo apt install -y \
-    libgtk-3-0 \
-    libnotify-dev \
-    libgconf-2-4 \
-    libnss3 \
-    libxss1 \
-    libasound2 \
-    libxtst6 \
-    xauth \
-    xvfb \
-    libgbm1 \
-    libx11-xcb1 \
-    libxcb-dri3-0 \
-    libdrm2
+    libgtk-3-0 libnotify-dev libnss3 libxss1 \
+    libasound2 libxtst6 xauth xvfb libgbm1 \
+    libx11-xcb1 libxcb-dri3-0 libdrm2 build-essential
 ```
 
-### Step 5: Install Electron via npm
-
-Navigate to the project directory and install:
+#### 3. Install npm dependencies
 
 ```bash
 cd baymax-face-ui
 npm install
 ```
 
-This will install Electron and all dependencies listed in `package.json`.
-
-### Step 6: Verify Installation
-
-Check if everything is installed correctly:
+#### 4. Run
 
 ```bash
-# Check if node_modules exists
-ls node_modules/electron
-
-# List installed packages
-npm list --depth=0
-```
-
-You should see:
-```
-baymax-face-ui@1.0.0 /path/to/baymax-face-ui
-└── electron@28.0.0
+npm start        # production — fullscreen, no devtools
+npm run dev      # development — with devtools, ESC to quit
 ```
 
 ---
 
-## Testing the Installation
+## Part 2 — FastAPI Emotion Service
 
-### Run in Development Mode
+Runs on the same machine (Raspberry Pi 5) as the Electron app.
 
-```bash
-npm run dev
-```
-
-This will:
-- Open the app in fullscreen
-- Show developer console for debugging
-- Allow you to press ESC to exit
-
-### Run in Production Mode
+#### 1. Create a Python virtual environment
 
 ```bash
-npm start
+cd baymax-face-ui
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-This will:
-- Open the app in fullscreen
-- Hide developer tools
-- Press ESC to exit
+#### 2. Install Python dependencies
+
+```bash
+pip install fastapi uvicorn
+```
+
+#### 3. Run the service
+
+```bash
+uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 8767
+```
+
+#### 4. Test it
+
+```bash
+# Set face to Happy
+curl -X POST http://localhost:8767/face_emotion \
+     -H "Content-Type: application/json" -d '{"emotion": 2}'
+
+# Health check
+curl http://localhost:8767/health
+```
+
+#### Emotion codes
+
+| Code | Label     | Expression shown |
+|:----:|-----------|-----------------|
+| `0`  | Normal    | `idle`          |
+| `1`  | Searching | `scanning`      |
+| `2`  | Happy     | `happy`         |
+| `3`  | Talking   | `talking`       |
+| `4`  | Thinking  | `thinking`      |
 
 ---
 
-## Troubleshooting
+## How the two services connect
 
-### Problem: "node: command not found"
-
-**Solution:**
-```bash
-sudo apt install nodejs npm
 ```
-
-### Problem: "Permission denied" errors during npm install
-
-**Solution 1 - Fix npm permissions (recommended):**
-```bash
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**Solution 2 - Use sudo (not recommended):**
-```bash
-sudo npm install
-```
-
-### Problem: Electron fails to start
-
-**Check missing libraries:**
-```bash
-ldd node_modules/electron/dist/electron | grep "not found"
-```
-
-**Install missing libraries:**
-```bash
-sudo apt install -y libgtk-3-0 libnss3 libasound2
-```
-
-### Problem: "gyp ERR! build error"
-
-**Solution:**
-```bash
-sudo apt install -y build-essential python3
-npm rebuild
-```
-
-### Problem: Display issues or black screen
-
-**For systems without display server:**
-```bash
-# Install virtual framebuffer
-sudo apt install xvfb
-
-# Run with xvfb
-xvfb-run npm start
-```
-
-### Problem: App crashes on Raspberry Pi
-
-**Reduce memory usage:**
-Edit `src/main.js` and add:
-```javascript
-app.commandLine.appendSwitch('disable-gpu');
-app.commandLine.appendSwitch('disable-software-rasterizer');
+GPU Server  POST /face_emotion {emotion:N}
+               ↓
+  pi5_face_service.py  :8767
+               ↓  node scripts/set_face.js <expression>
+  scripts/set_face.js
+               ↓  POST 127.0.0.1:8768/set-expression
+  main.js  startIpcBridge()
+               ↓  executeJavaScript("setExpression('...')")
+  src/index.html  →  face changes
 ```
 
 ---
 
-## For 7-inch Touchscreen Displays
+## Auto-start on Boot (systemd)
 
-### Configure Display Resolution
+### Electron face
 
-#### Raspberry Pi:
-```bash
-sudo nano /boot/config.txt
-```
-
-Add:
-```
-hdmi_group=2
-hdmi_mode=87
-hdmi_cvt=1024 600 60 6 0 0 0
-```
-
-Reboot:
-```bash
-sudo reboot
-```
-
-#### Standard Ubuntu:
-```bash
-xrandr  # List available displays
-xrandr --output HDMI-1 --mode 1024x600  # Set resolution
-```
-
-### Auto-start on Boot
-
-#### Method 1: Desktop Entry
-```bash
-mkdir -p ~/.config/autostart
-nano ~/.config/autostart/baymax-face.desktop
-```
-
-Add:
-```
-[Desktop Entry]
-Type=Application
-Name=BayMax Face
-Exec=/usr/bin/npm start --prefix /path/to/baymax-face-ui
-X-GNOME-Autostart-enabled=true
-```
-
-#### Method 2: systemd Service
 ```bash
 sudo nano /etc/systemd/system/baymax-face.service
 ```
 
-Add:
-```
+```ini
 [Unit]
 Description=BayMax Face UI
 After=graphical.target
@@ -280,99 +161,62 @@ Restart=always
 WantedBy=graphical.target
 ```
 
-Enable and start:
 ```bash
 sudo systemctl enable baymax-face.service
 sudo systemctl start baymax-face.service
 ```
 
----
-
-## Additional Packages for Future Features
-
-### For ROS2 Integration:
+### FastAPI emotion service
 
 ```bash
-# Install ROS2 (Humble for Ubuntu 22.04)
-# Follow official ROS2 installation guide
-# https://docs.ros.org/en/humble/Installation.html
-
-# Install Node.js ROS2 bridge
-npm install rclnodejs --break-system-packages
+sudo nano /etc/systemd/system/baymax-emotion.service
 ```
 
-### For Audio/TTS (Text-to-Speech):
+```ini
+[Unit]
+Description=BayMax Face Emotion API
+After=network.target baymax-face.service
 
-```bash
-# Install audio libraries
-sudo apt install -y alsa-utils pulseaudio
+[Service]
+Type=simple
+User=YOUR_USERNAME
+WorkingDirectory=/path/to/baymax-face-ui
+ExecStart=/path/to/baymax-face-ui/venv/bin/uvicorn src.pi5_face_service:app --host 0.0.0.0 --port 8767
+Restart=always
 
-# Test audio
-speaker-test -t wav -c 2
+[Install]
+WantedBy=multi-user.target
 ```
 
-### For Camera/Vision:
-
 ```bash
-# Install v4l-utils for camera
-sudo apt install -y v4l-utils
-
-# List cameras
-v4l2-ctl --list-devices
+sudo systemctl enable baymax-emotion.service
+sudo systemctl start baymax-emotion.service
 ```
 
 ---
 
-## Package Summary
+## Port reference
 
-Here's what gets installed:
-
-| Package | Purpose |
-|---------|---------|
-| nodejs | JavaScript runtime |
-| npm | Package manager |
-| electron | Desktop app framework |
-| build-essential | Compiler tools |
-| libgtk-3-0 | GUI toolkit |
-| libnss3 | Network Security Services |
-| libasound2 | Audio library |
-| libxss1 | X11 Screen Saver extension |
-| xvfb | Virtual framebuffer (headless) |
+| Port | Service | Accessible from |
+|------|---------|----------------|
+| `8767` | FastAPI `/face_emotion` | Any host (GPU server → PI 5) |
+| `8768` | Electron IPC bridge | `127.0.0.1` only (internal) |
 
 ---
 
-## Disk Space Requirements
+## Troubleshooting
 
-- Node.js + npm: ~50 MB
-- Electron + dependencies: ~200 MB
-- Build tools: ~100 MB
-- **Total: ~350 MB**
+**Port 8767 already in use:**
+```bash
+fuser -k 8767/tcp
+```
 
-Make sure you have at least 500 MB free space.
+**Electron black screen (headless):**
+```bash
+xvfb-run npm start
+```
 
----
-
-## Next Steps
-
-After installation:
-
-1. ✅ Test the app: `npm start`
-2. ✅ Read README.md for full documentation
-3. ✅ Check docs/QUICKSTART.md for usage examples
-4. ✅ Explore integrations/ros2-bridge.js for ROS2 integration
-5. ✅ Review integrations/llm-integration.js for LLM integration
-
----
-
-## Getting Help
-
-If you encounter issues:
-
-1. Check the error message carefully
-2. Search for the error on Stack Overflow
-3. Check Electron documentation: https://www.electronjs.org/docs
-4. Verify all dependencies are installed: `npm list`
-
----
-
-**Installation complete! You're ready to build your friendly robot face! 🤖💙**
+**Check what's using a port:**
+```bash
+lsof -i :8767
+```

@@ -1,8 +1,8 @@
 const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const path = require('path');
+const http = require('http');
 
 let faceWindow;
-let controlWindow;
 
 function createWindows() {
   // Get all displays and pick the secondary (external) one
@@ -36,29 +36,6 @@ function createWindows() {
 
   faceWindow.on('closed', function () {
     faceWindow = null;
-  });
-
-  // ===== Control Panel Window — normal window on primary display =====
-  controlWindow = new BrowserWindow({
-    x: primaryDisplay.bounds.x + Math.round((primaryDisplay.bounds.width - 500) / 2),
-    y: primaryDisplay.bounds.y + Math.round((primaryDisplay.bounds.height - 400) / 2),
-    width: 500,
-    height: 600,
-    frame: true,
-    resizable: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
-    },
-    backgroundColor: '#1a1a2e',
-    title: 'BayMax Control Panel'
-  });
-
-  controlWindow.loadFile(path.join(__dirname, 'control.html'));
-
-  controlWindow.on('closed', function () {
-    controlWindow = null;
   });
 
   // ===== IPC: Forward commands from control panel to robot face =====
@@ -99,7 +76,63 @@ function createWindows() {
   });
 }
 
-app.on('ready', createWindows);
+app.on('ready', () => {
+  createWindows();
+  startIpcBridge();
+});
+
+// ── Internal IPC HTTP bridge (port 8768) ─────────────────────────────────────
+// Called by scripts/set_face.js which is invoked by pi5_face_service.py.
+// This lets the FastAPI service drive the Electron renderer without native IPC.
+//
+// POST http://127.0.0.1:8768/set-expression  { "expression": "talking" }
+//
+function startIpcBridge() {
+  const VALID_EXPRESSIONS = new Set([
+    'idle', 'happy', 'thinking', 'scanning', 'talking', 'surprised', 'warning',
+  ]);
+
+  const server = http.createServer((req, res) => {
+    if (req.method !== 'POST' || req.url !== '/set-expression') {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { expression } = JSON.parse(body);
+        if (!VALID_EXPRESSIONS.has(expression)) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Unknown expression: ${expression}` }));
+          return;
+        }
+
+        // Push to renderer via executeJavaScript (same as 'set-expression' IPC)
+        if (faceWindow && !faceWindow.isDestroyed()) {
+          faceWindow.webContents.executeJavaScript(`setExpression('${expression}')`);
+          console.log(`[ipc-bridge] setExpression('${expression}')`);
+        } else {
+          console.warn('[ipc-bridge] faceWindow not available');
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', expression }));
+      } catch (err) {
+        console.error('[ipc-bridge] Error:', err);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      }
+    });
+  });
+
+  server.listen(8768, '127.0.0.1', () => {
+    console.log('[ipc-bridge] Listening on http://127.0.0.1:8768');
+  });
+}
+
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
@@ -108,7 +141,7 @@ app.on('window-all-closed', function () {
 });
 
 app.on('activate', function () {
-  if (faceWindow === null && controlWindow === null) {
+  if (faceWindow === null) {
     createWindows();
   }
 });
