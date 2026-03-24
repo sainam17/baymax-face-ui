@@ -121,6 +121,21 @@ curl http://localhost:8767/health
 
 ---
 
+## Option C — Automated Autostart Setup
+
+I've created a script that handles both the backend and frontend autostart configuration:
+
+```bash
+chmod +x scripts/setup_autostart.sh
+sudo ./scripts/setup_autostart.sh
+```
+
+This will:
+- Create and enable `baymax-emotion.service` (background).
+- Create `~/.config/autostart/baymax-face.desktop` (popup on login).
+
+---
+
 ## How the two services connect
 
 ```
