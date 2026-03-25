@@ -88,6 +88,9 @@
             <button onclick="toggleDevMode()" class="control-btn bg-indigo-600 hover:bg-indigo-700">
                 ⚙ Dev Mode
             </button>
+            <button onclick="closeControl()" class="control-btn bg-red-600 hover:bg-red-700">
+                ✕ Close
+            </button>
         </div>
 
         <div id="status" class="text-gray-500 text-center mt-6 text-xs">
@@ -139,6 +142,10 @@
 
         function toggleDevMode() {
             ipcRenderer.send('toggle-devscreen');
+        }
+
+        function closeControl() {
+            ipcRenderer.send('toggle-control-panel');
         }
 
         function updateActiveButton(expression) {
