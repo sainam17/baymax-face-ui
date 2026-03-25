@@ -34,9 +34,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
-import subprocess
 import json
 import logging
+import urllib.request
 import uvicorn
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -80,53 +80,24 @@ class FaceEmotionRequest(BaseModel):
 
 
 # ── Frontend bridge ───────────────────────────────────────────────────────────
+_IPC_BRIDGE_URL = "http://127.0.0.1:8768/set-expression"
+
+
 def _apply_expression(expression: str) -> None:
-    """
-    Drive the Electron renderer to show the given expression.
-
-    Replace this stub with your preferred IPC mechanism:
-
-    Option A — xdotool + Electron IPC (simplest on same machine):
-        subprocess.run(["xdotool", "key", ...], ...)
-
-    Option B — Unix socket / named pipe that main.js reads.
-
-    Option C — WebSocket push (see integrations/ros2-bridge.js pattern).
-
-    Option D — Call the Node helper script below (default implementation):
-        node scripts/set_face.js <expression>
-
-    The helper script just sends an IPC message to the running Electron app.
-    """
+    """Drive the Electron renderer via its internal HTTP IPC bridge (port 8768)."""
     logger.info("[face] Setting expression → %s", expression)
-
-    # ---- Default: shell out to a tiny Node.js IPC helper ----
-    # This requires scripts/set_face.js to exist (see below).
-    # Comment out and replace with your preferred bridge if needed.
+    payload = json.dumps({"expression": expression}).encode()
+    req = urllib.request.Request(
+        _IPC_BRIDGE_URL,
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
     try:
-        result = subprocess.run(
-            ["node", "scripts/set_face.js", expression],
-            capture_output=True,
-            text=True,
-            timeout=2,
-        )
-        if result.returncode != 0:
-            logger.warning(
-                "[face] set_face.js exited %d: %s",
-                result.returncode,
-                result.stderr.strip(),
-            )
-        else:
-            logger.debug("[face] set_face.js OK: %s", result.stdout.strip())
-    except FileNotFoundError:
-        # scripts/set_face.js not present yet — log and continue
-        logger.warning(
-            "[face] scripts/set_face.js not found — expression '%s' not applied to display. "
-            "Implement _apply_expression() for your IPC mechanism.",
-            expression,
-        )
-    except subprocess.TimeoutExpired:
-        logger.warning("[face] set_face.js timed out for expression '%s'", expression)
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            logger.debug("[face] IPC bridge OK: %s", resp.read().decode())
+    except Exception as exc:
+        logger.warning("[face] IPC bridge error for '%s': %s", expression, exc)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────

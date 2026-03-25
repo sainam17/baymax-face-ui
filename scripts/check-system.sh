@@ -178,7 +178,7 @@ else
     echo "  • Install Node.js: sudo apt install nodejs npm"
     echo "  • Install dependencies: npm install"
     echo "  • Install build tools: sudo apt install build-essential"
-    echo "  • Install system libs: sudo apt install libgtk-3-0 libnss3 libasound2"
+    echo "  • Install system libs: sudo apt install libgtk-3-0t64 libnss3 libasound2t64"
     echo ""
     echo "For detailed help, see INSTALLATION.md"
 fi

@@ -115,13 +115,35 @@ function toggleControlPanel() {
 
 app.on('ready', () => {
   const { globalShortcut } = require('electron');
-  
-  createWindows();
-  startIpcBridge();
+
+  // Delay slightly so Wayland can report the correct display resolution before
+  // we read screen.getAllDisplays() — without this the service may start with
+  // a stale/wrong resolution and require a restart to correct itself.
+  setTimeout(() => {
+    createWindows();
+    startIpcBridge();
+  }, 3000);
 
   // Global shortcut to toggle control panel
   globalShortcut.register('CommandOrControl+Shift+C', () => {
     toggleControlPanel();
+  });
+
+  // Re-fit the face window if the display resolution changes after startup
+  // (covers the race condition where the display settles after Electron opens)
+  screen.on('display-metrics-changed', (event, display, changedMetrics) => {
+    if (faceWindow && !faceWindow.isDestroyed()) {
+      const displays = screen.getAllDisplays();
+      const primaryDisplay = screen.getPrimaryDisplay();
+      const secondaryDisplay = displays.find(d => d.id !== primaryDisplay.id);
+      const faceDisplay = secondaryDisplay || primaryDisplay;
+      faceWindow.setBounds({
+        x: faceDisplay.bounds.x,
+        y: faceDisplay.bounds.y,
+        width: faceDisplay.bounds.width,
+        height: faceDisplay.bounds.height,
+      });
+    }
   });
 });
 

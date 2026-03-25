@@ -84,12 +84,11 @@ echo ""
 # Step 6: Install additional dependencies for Electron
 echo "Step 6: Installing Electron dependencies..."
 sudo apt install -y \
-    libgtk-3-0 \
+    libgtk-3-0t64 \
     libnotify-dev \
-    libgconf-2-4 \
     libnss3 \
     libxss1 \
-    libasound2 \
+    libasound2t64 \
     libxtst6 \
     xauth \
     xvfb \
