@@ -83,60 +83,127 @@
 
     .eyelid-top {
       top: 0;
-      transform: translateY(-100%);
+      translate: 0 -100%;
+      rotate: 0deg;
       transform-origin: center bottom;
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+      transition: translate 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        rotate 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .eyelid-bottom {
       bottom: 0;
-      transform: translateY(100%);
+      translate: 0 100%;
+      rotate: 0deg;
       transform-origin: center top;
       box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.08);
+      transition: translate 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        rotate 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     /* ===== EYELID STATES ===== */
 
     /* Happy squint — top comes down + slight inward angle */
     .eyelid-top.squint {
-      transform: translateY(-55%) rotate(0deg);
+      translate: 0 -55%;
+      rotate: 0deg;
     }
 
     .eyelid-bottom.squint {
-      transform: translateY(55%) rotate(0deg);
+      translate: 0 55%;
+      rotate: 0deg;
     }
 
     /* Angry/determined — eyelids angle inward (left eye rotates one way, right the other) */
     .eye-socket.left-eye .eyelid-top.angry {
-      transform: translateY(-55%) rotate(12deg);
+      translate: 0 -55%;
+      rotate: 12deg;
     }
 
     .eye-socket.right-eye .eyelid-top.angry {
-      transform: translateY(-55%) rotate(-12deg);
+      translate: 0 -55%;
+      rotate: -12deg;
     }
 
     /* Thinking — eyelid droops straight down (no rotation) */
     .eyelid-top.droop-straight {
-      transform: translateY(-55%) rotate(10deg);
+      translate: 0 -55%;
+      rotate: 10deg;
     }
 
     /* Thinking — eyelid droops at angle */
     .eyelid-top.droop {
-      transform: translateY(-70%) rotate(0deg);
+      translate: 0 -70%;
+      rotate: 0deg;
     }
 
     /* Surprised — eyelids pull back fully */
     .eyelid-top.wide {
-      transform: translateY(-100%) rotate(0deg) !important;
+      translate: 0 -100% !important;
+      rotate: 0deg !important;
     }
 
     .eyelid-bottom.wide {
-      transform: translateY(100%) rotate(0deg) !important;
+      translate: 0 100% !important;
+      rotate: 0deg !important;
     }
 
     /* Skeptical — one eyebrow raised (slight tilt) */
     .eyelid-top.raised {
-      transform: translateY(-95%) rotate(-5deg);
+      translate: 0 -95%;
+      rotate: -5deg;
+    }
+
+    /* Emoji-style Thinking angled droop */
+    .eyelid-top.droop-angled-left {
+      translate: 0 -55% !important;
+      rotate: 25deg !important;
+    }
+
+    .eyelid-top.droop-angled-right {
+      translate: 0 -55% !important;
+      rotate: -10deg !important;
+    }
+
+    /* Alternative phase for loop */
+    .eyelid-top.droop-angled-left-alt {
+      translate: 0 -55% !important;
+      rotate: 10deg !important;
+    }
+
+    .eyelid-top.droop-angled-right-alt {
+      translate: 0 -68% !important;
+      rotate: -25deg !important;
+    }
+
+    /* Fixed Iris positions for thinking loop */
+    .iris.think-left {
+      transform: translate(calc(-50% - 25px), calc(-50% - 18px)) !important;
+    }
+
+    .iris.think-right {
+      transform: translate(calc(-50% + 25px), calc(-50% - 18px)) !important;
+    }
+
+    .face-container.thinking-loop .eyelid-top,
+    .face-container.thinking-loop .eyelid-bottom {
+      transition: translate 0.7s cubic-bezier(0.445, 0.05, 0.55, 0.95),
+        rotate 0.7s cubic-bezier(0.445, 0.05, 0.55, 0.95) !important;
+    }
+
+    /* Thinking — specific furrow states for left/right side-to-side shift */
+    .eyelid-top.think-left-top {
+      translate: 0 -75% !important;
+      rotate: 8deg !important;
+    }
+
+    .eyelid-top.think-right-top {
+      translate: 0 -75% !important;
+      rotate: -8deg !important;
+    }
+
+    .face-container.thinking-loop .iris {
+      transition: transform 1.5s ease-in-out !important;
     }
 
 
@@ -161,6 +228,18 @@
 
     .iris.thinking {
       animation: thinking-iris 2.5s ease-in-out infinite;
+    }
+
+    @keyframes thinking-iris-loop {
+
+      0%,
+      100% {
+        transform: translate(calc(-50% + 20px), calc(-50% - 15px));
+      }
+
+      50% {
+        transform: translate(calc(-50% - 20px), calc(-50% - 15px));
+      }
     }
 
     /* ===== SCANNING — iris/pupil move, eye sockets tilt to follow ===== */
@@ -270,25 +349,36 @@
 
     /* Scanning eyelid — slight squint */
     .eyelid-top.scan-squint {
-      transform: translateY(-62%) rotate(0deg);
+      translate: 0 -62%;
+      rotate: 0deg;
     }
 
     .eyelid-bottom.scan-squint {
-      transform: translateY(75%) rotate(0deg);
+      translate: 0 75%;
+      rotate: 0deg;
     }
 
     /* ===== EYELID HIDDEN (for happy) ===== */
     .eyelid-top.hidden-up {
-      transform: translateY(-100%) rotate(0deg) !important;
+      translate: 0 -110% !important;
+      rotate: 0deg !important;
     }
 
-    /* Closed — LAST so it always overrides other states during blink */
-    .eyelid-top.closed {
-      transform: translateY(0%) rotate(0deg) !important;
+    /* Closed — HIGH SPECIFICITY so it always overrides other states during blink */
+    .face-container .eye-socket .eyelid-top.closed,
+    .face-container .eye-socket .eyelid-bottom.closed {
+      translate: 0 0% !important;
     }
 
-    .eyelid-bottom.closed {
-      transform: translateY(0%) rotate(0deg) !important;
+    /* Force natural blink timings */
+    .eyelid-top.blink-closing,
+    .eyelid-bottom.blink-closing {
+      transition: translate 0.08s ease-in !important;
+    }
+
+    .eyelid-top.blink-opening,
+    .eyelid-bottom.blink-opening {
+      transition: translate 0.25s ease-out !important;
     }
 
     /* ===== STAR SPARKLE PARTICLES ===== */
@@ -610,25 +700,25 @@
       overflow: visible;
     }
 
-    /* Base paths — converted to 14-point capsule layout (M L C L C L C L C) to match face states */
+    /* Base paths — 14-point capsule layout */
     .mouth-outer-path {
       fill: url(#mouthOuterGrad);
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2)) drop-shadow(0 1px 3px rgba(255, 255, 255, 0.04));
-      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: d 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       d: path('M 0 -9 L 0 -9 C 35.8985 -9, 65 -4.9705, 65 0 L 65 0 C 65 4.9705, 35.8985 9, 0 9 L 0 9 C -35.8985 9, -65 4.9705, -65 0 L -65 0 C -65 -4.9705, -35.8985 -9, 0 -9 Z');
     }
 
     .mouth-inner-path {
       fill: url(#mouthInnerGrad);
       filter: drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.8));
-      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transition: d 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       d: path('M 0 -4.95 L 0 -4.95 C 25.1289 -4.95, 45.5 -2.7338, 45.5 0 L 45.5 0 C 45.5 2.7338, 25.1289 4.95, 0 4.95 L 0 4.95 C -25.1289 4.95, -45.5 2.7338, -45.5 0 L -45.5 0 C -45.5 -2.7338, -25.1289 -4.95, 0 -4.95 Z');
     }
 
     .mouth-core-path {
       fill: #000000;
-      transition: d 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      d: path('M 0 -3.6 L 0 -3.6 C 17.9492 -3.6, 32.5 -1.9882, 32.5 0 L 32.5 0 C 32.5 1.9882, 17.9492 3.6, 0 3.6 L 0 3.6 C -17.9492 3.6, -32.5 1.9882, -32.5 0 L -32.5 0 C -32.5 -1.9882, -17.9492 -3.6, 0 -3.6 Z');
+      transition: d 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      d: path('M 0 -3.6 L 0 -3.6 C 17.9492 -3.6, 32.5 -1.9882, 32.5 0 L 32.5 0 C 32.5 1.9882, 17.9492 3.6, 0 3.6 L 0 3.6 C -17.9492 3.6, -32.5 -1.9882, -32.5 0 L -32.5 0 C -32.5 -1.9882, -17.9492 -3.6, 0 -3.6 Z');
     }
 
     /* ===== SMILE STATE — U-curve smile mapped to the same 14-point structure as other mouths for smooth morphing ===== */
@@ -665,17 +755,18 @@
       transform: translateY(6.4px);
     }
 
-    /* ===== THINK — small neutral pursed, like reference "Think" ===== */
+    /* ===== THINK — true upside down curve (frown) compatible with base capsule ===== */
     .mouth-container.think .mouth-outer-path {
-      d: path('M -20 -10 L 20 -10 C 25.52284749831 -10, 30 -5.52284749831, 30 0 L 30 0 C 30 5.52284749831, 25.52284749831 10, 20 10 L -20 10 C -25.52284749831 10, -30 5.52284749831, -30 0 L -30 0 C -30 -5.52284749831, -25.52284749831 -10, -20 -10 Z');
+      d: path('M 0 -5 L 0 -5 C 35 -5, 55 15, 55 15 L 55 15 C 62 15, 40 -20, 0 -20 L 0 -20 C -40 -20, -62 15, -55 15 L -55 15 C -55 15, -35 -5, 0 -5 Z');
+      transform: rotate(-12deg) translateY(10px) translateX(2px);
     }
 
-    .mouth-container.think .mouth-inner-path {
-      d: path('M -12 -6 L 12 -6 C 15.313708498986 -6, 18 -3.3137084989859997, 18 0 L 18 0 C 18 3.3137084989859997, 15.313708498986 6, 12 6 L -12 6 C -15.313708498986 6, -18 3.3137084989859997, -18 0 L -18 0 C -18 -3.3137084989859997, -15.313708498986 -6, -12 -6 Z');
-    }
-
+    .mouth-container.think .mouth-inner-path,
     .mouth-container.think .mouth-core-path {
-      d: path('M -8 -4 L 8 -4 C 10.209138999324 -4, 12 -2.209138999324, 12 0 L 12 0 C 12 2.209138999324, 10.209138999324 4, 8 4 L -8 4 C -10.209138999324 4, -12 2.209138999324, -12 0 L -12 0 C -12 -2.209138999324, -10.209138999324 -4, -8 -4 Z');
+      opacity: 0;
+      /* Keep path consistent for background morphing */
+      d: path('M 0 -5 L 0 -5 C 35 -5, 55 15, 55 15 L 55 15 C 62 15, 40 -20, 0 -20 L 0 -20 C -40 -20, -62 15, -55 15 L -55 15 C -55 15, -30 -5, 0 -5 Z');
+      transform: rotate(-12deg) translateY(10px) translateX(2px);
     }
 
     /* ===== SURPRISED O — round "Oh!" from reference ===== */
@@ -1122,9 +1213,9 @@
     /* Map Panel */
     .map-area {
       flex: 1;
-      background: #080c16;
+      background: rgb(30, 40, 60);
       border-radius: 10px;
-      border: 1px solid rgba(0, 200, 255, 0.08);
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1165,13 +1256,171 @@
       }
     }
 
+    #mapCanvas {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      margin-top: -20px;
+      border: none;
+      box-shadow: none;
+      z-index: 2;
+    }
+
     .map-placeholder-text {
       position: absolute;
       bottom: 12px;
-      right: 14px;
+      left: 14px;
       font-size: 11px;
-      color: #2a3a54;
+      color: rgba(255, 255, 255, 0.7);
       font-style: italic;
+      z-index: 3;
+    }
+
+    /* Reboot Panel */
+    .reboot-tab-btn {
+      color: #ff4466 !important;
+      border-color: rgba(255, 68, 102, 0.3) !important;
+    }
+
+    .reboot-tab-btn:hover,
+    .reboot-tab-btn.active {
+      background: rgba(255, 68, 102, 0.15) !important;
+      border-color: rgba(255, 68, 102, 0.6) !important;
+      color: #ff4466 !important;
+    }
+
+    .reboot-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .reboot-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      margin-top: 24px;
+    }
+
+    .reboot-question {
+      font-size: 18px;
+      color: #c0d0e8;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .reboot-trigger-btn {
+      padding: 14px 48px;
+      background: linear-gradient(135deg, #ff3366, #cc1144);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 51, 102, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .reboot-trigger-btn:hover {
+      background: linear-gradient(135deg, #ff5588, #ee2255);
+      box-shadow: 0 0 35px rgba(255, 51, 102, 0.65);
+      transform: scale(1.04);
+    }
+
+    /* Reboot Confirmation Modal */
+    .reboot-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      backdrop-filter: blur(6px);
+    }
+
+    .reboot-modal.hidden {
+      display: none;
+    }
+
+    .reboot-modal-box {
+      background: #0f1524;
+      border: 1px solid rgba(255, 68, 102, 0.4);
+      border-radius: 16px;
+      padding: 36px 48px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 51, 102, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .reboot-modal-icon {
+      font-size: 40px;
+    }
+
+    .reboot-modal-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ff4466;
+      letter-spacing: 1px;
+    }
+
+    .reboot-modal-msg {
+      font-size: 14px;
+      color: #8899bb;
+      margin-bottom: 6px;
+    }
+
+    .reboot-modal-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .reboot-btn-yes {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #ff3366, #cc1144);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 0 14px rgba(255, 51, 102, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .reboot-btn-yes:hover {
+      background: linear-gradient(135deg, #ff5588, #ee2255);
+      box-shadow: 0 0 28px rgba(255, 51, 102, 0.6);
+    }
+
+    .reboot-btn-no {
+      padding: 12px 32px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: #8899bb;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+
+    .reboot-btn-no:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #e0e6f0;
     }
 
     /* Teleop Panel */
@@ -1391,6 +1640,7 @@
         <button class="dev-tab-btn active" data-tab="battery">🔋 Battery</button>
         <button class="dev-tab-btn" data-tab="map">🗺 Map</button>
         <button class="dev-tab-btn" data-tab="teleop">🎮 Teleop</button>
+        <button class="dev-tab-btn reboot-tab-btn" data-tab="reboot">⏻ Reboot</button>
       </div>
 
       <!-- Battery Tab -->
@@ -1412,9 +1662,32 @@
         <div class="dev-panel">
           <div class="dev-panel-title">🗺 Robot Map</div>
           <div class="map-area">
-            <div class="map-grid"></div>
-            <div class="map-robot-dot"></div>
-            <span class="map-placeholder-text">Awaiting ROS map feed</span>
+            <canvas id="mapCanvas"></canvas>
+            <span class="map-placeholder-text">ROS Local Map (/map.pgm)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reboot Tab -->
+      <div id="tab-reboot" class="dev-tab-content">
+        <div class="dev-panel reboot-panel">
+          <div class="dev-panel-title">⏻ System Reboot</div>
+          <div class="reboot-section">
+            <p class="reboot-question">Do you want to reboot the robot?</p>
+            <button id="rebootBtn" class="reboot-trigger-btn">⏻ Reboot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reboot Confirmation Modal -->
+      <div id="rebootModal" class="reboot-modal hidden">
+        <div class="reboot-modal-box">
+          <div class="reboot-modal-icon">⚠️</div>
+          <div class="reboot-modal-title">Confirm Reboot</div>
+          <div class="reboot-modal-msg">This will restart the robot. Are you sure?</div>
+          <div class="reboot-modal-actions">
+            <button id="rebootConfirmYes" class="reboot-btn-yes">✓ Yes, Reboot</button>
+            <button id="rebootConfirmNo" class="reboot-btn-no">✕ No, Cancel</button>
           </div>
         </div>
       </div>
@@ -1705,12 +1978,23 @@
       resetAll() {
         // Stop idle animations
         IdleAnimator.stop();
+        // Stop thinking loop
+        ThinkingAnimator.stop();
 
-        // Clear eyelid states
-        const lidStates = ['closed', 'squint', 'droop', 'droop-straight', 'wide', 'happy-anim', 'hidden-up', 'scan-squint'];
+        // Clear eyelid states - exhaustive list to prevent leaks
+        const lidStates = [
+          'closed', 'squint', 'droop', 'droop-straight', 'wide',
+          'happy-anim', 'hidden-up', 'scan-squint',
+          'think-right-top', 'think-left-top',
+          'blink-closing', 'blink-opening',
+          'droop-angled-left', 'droop-angled-right',
+          'droop-angled-left-alt', 'droop-angled-right-alt'
+        ];
         allEyelids.forEach(lid => {
           lidStates.forEach(s => lid.classList.remove(s));
           lid.style.transform = '';
+          lid.style.translate = '';
+          lid.style.rotate = '';
           lid.style.transition = '';
         });
 
@@ -1765,13 +2049,29 @@
 
       // Blink via eyelids
       blink() {
-        // Close eyelids
+        // Fast Close
+        allEyelids.forEach(lid => {
+          lid.classList.remove('blink-opening');
+          lid.classList.add('blink-closing');
+        });
+
         allEyelidTops.forEach(lid => lid.classList.add('closed'));
         allEyelidBottoms.forEach(lid => lid.classList.add('closed'));
 
         setTimeout(() => {
+          // Natural Open
+          allEyelids.forEach(lid => {
+            lid.classList.remove('blink-closing');
+            lid.classList.add('blink-opening');
+          });
+
           allEyelidTops.forEach(lid => lid.classList.remove('closed'));
           allEyelidBottoms.forEach(lid => lid.classList.remove('closed'));
+
+          // Cleanup after open finishes
+          setTimeout(() => {
+            allEyelids.forEach(lid => lid.classList.remove('blink-opening'));
+          }, 300);
         }, CONFIG.timings.blinkDuration);
       },
 
@@ -1917,6 +2217,70 @@
     };
 
     // ==========================================
+    // THINKING ANIMATOR (Upgraded)
+    // ==========================================
+    const ThinkingAnimator = {
+      _interval: null,
+      _phase: 0,
+
+      start() {
+        this.stop();
+        // Set Iris Loop
+        allIrises.forEach(iris => iris.classList.add('thinking-loop'));
+        UI.faceContainer.classList.add('thinking-loop');
+
+        // Set swap interval for side-to-side shift
+        this._interval = setInterval(() => {
+          this._phase = (this._phase + 1) % 2;
+          this.update();
+        }, 6000);
+
+        // Initial set
+        this.update();
+      },
+
+      update() {
+        // Clear drooping, wide, and iris states
+        allEyelids.forEach(lid => {
+          lid.classList.remove('droop-angled-left', 'droop-angled-right', 'droop-angled-left-alt', 'droop-angled-right-alt', 'wide', 'think-bottom', 'think-right-top', 'think-left-top');
+        });
+        allIrises.forEach(iris => {
+          iris.classList.remove('think-left', 'think-right');
+        });
+
+        // Set STATIC Eyelids (Left wide, Right furrowed)
+        UI.leftEyelidTop.classList.add('wide');
+        UI.rightEyelidTop.classList.add('think-right-top');
+        UI.leftEyelidBottom.classList.add('wide');
+        UI.rightEyelidBottom.classList.add('wide');
+
+        // Toggle IRIS position
+        if (this._phase === 0) {
+          allIrises.forEach(iris => iris.classList.add('think-left'));
+        } else {
+          allIrises.forEach(iris => iris.classList.add('think-right'));
+        }
+      },
+
+      stop() {
+        if (this._interval) {
+          clearInterval(this._interval);
+          this._interval = null;
+        }
+        allIrises.forEach(iris => iris.classList.remove('thinking-loop', 'think-left', 'think-right'));
+        UI.faceContainer.classList.remove('thinking-loop');
+        allEyelids.forEach(lid => {
+          lid.classList.remove(
+            'droop-angled-left', 'droop-angled-right',
+            'think-right-top', 'think-left-top',
+            'wide', 'droop', 'droop-straight'
+          );
+        });
+        this._phase = 0;
+      }
+    };
+
+    // ==========================================
     // WARNING / BATTERY CONTROLLER
     // ==========================================
     const WarningController = {
@@ -1996,7 +2360,7 @@
             break;
 
           case 'thinking':
-            EyeController.setThinking();
+            ThinkingAnimator.start();
             MouthController.setThink();
             break;
 
@@ -2069,6 +2433,87 @@
     };
 
     // ==========================================
+    // MAP CONTROLLER — PGM (P5) Renderer
+    // ==========================================
+    const MapController = {
+      canvas: null,
+      ctx: null,
+      currentMapPath: require('path').join(__dirname, '..', 'maps', 'map.pgm'),
+
+      init() {
+        this.canvas = document.getElementById('mapCanvas');
+        if (this.canvas) this.ctx = this.canvas.getContext('2d');
+      },
+
+      load() {
+        if (typeof require === 'undefined') return;
+        try {
+          if (!this.ctx) this.init();
+          const fs = require('fs');
+          if (!fs.existsSync(this.currentMapPath)) {
+            console.warn(`[Map] File not found: ${this.currentMapPath}`);
+            return;
+          }
+
+          const buffer = fs.readFileSync(this.currentMapPath);
+          console.log(`[Map] Reading ${buffer.length} bytes from ${this.currentMapPath}`);
+
+          // PGM P5 Header Parser (Binary Grayscale)
+          let head = 0;
+          const getNext = () => {
+            let word = "";
+            while (head < buffer.length && (buffer[head] <= 32 || buffer[head] === 35)) {
+              if (buffer[head] === 35) while (head < buffer.length && buffer[head] !== 10) head++;
+              head++;
+            }
+            while (head < buffer.length && buffer[head] > 32) {
+              word += String.fromCharCode(buffer[head]);
+              head++;
+            }
+            return word;
+          };
+
+          const magic = getNext();
+          if (magic !== 'P5') {
+            console.error('[Map] Error: Not a PGM P5 file. Magic:', magic);
+            return;
+          }
+
+          const width = parseInt(getNext());
+          const height = parseInt(getNext());
+          const maxVal = parseInt(getNext());
+          head++; // skip the single whitespace after maxVal
+
+          console.log(`[Map] Found P5: ${width}x${height}, maxVal: ${maxVal}`);
+
+          this.canvas.width = width;
+          this.canvas.height = height;
+          const imageData = this.ctx.createImageData(width, height);
+
+          // ROS mapping: 254/255 = Free, 0 = Occupied, 205 = Unknown
+          for (let i = 0; i < width * height; i++) {
+            const val = buffer[head + i];
+
+            // Apply slight tint to the map for dev aesthetic
+            if (val >= 250) { // Free
+              imageData.data[i * 4] = 10; imageData.data[i * 4 + 1] = 20; imageData.data[i * 4 + 2] = 30; // Dark blueprint
+            } else if (val === 0) { // Occupied
+              imageData.data[i * 4] = 0; imageData.data[i * 4 + 1] = 212; imageData.data[i * 4 + 2] = 255; // Cyan
+            } else { // Unknown
+              imageData.data[i * 4] = 30; imageData.data[i * 4 + 1] = 40; imageData.data[i * 4 + 2] = 60; // Faint blue
+            }
+            imageData.data[i * 4 + 3] = 255; // Alpha
+          }
+
+          this.ctx.putImageData(imageData, 0, 0);
+          console.log(`[Map] Rendered successfully`);
+        } catch (err) {
+          console.error('[Map] Error loading map:', err);
+        }
+      }
+    };
+
+    // ==========================================
     // DEV SCREEN CONTROLLER
     // ==========================================
     const DevScreenController = {
@@ -2078,6 +2523,7 @@
       _keyUpHandler: null,
 
       init() {
+        MapController.init();
         // Tab navigation
         this.el.querySelectorAll('.dev-tab-btn').forEach(btn => {
           btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
@@ -2085,6 +2531,28 @@
 
         // Exit button
         document.getElementById('devExitBtn').addEventListener('click', () => this.hide());
+
+        // Reboot button — show confirmation modal
+        const rebootModal = document.getElementById('rebootModal');
+        document.getElementById('rebootBtn').addEventListener('click', () => {
+          rebootModal.classList.remove('hidden');
+        });
+        document.getElementById('rebootConfirmNo').addEventListener('click', () => {
+          rebootModal.classList.add('hidden');
+        });
+        document.getElementById('rebootConfirmYes').addEventListener('click', () => {
+          rebootModal.classList.add('hidden');
+          console.log('[Reboot] Sending reboot command...');
+          if (typeof require !== 'undefined') {
+            try {
+              require('child_process').exec(`systemctl --user restart baymax-robot baymax-face-api baymax-face-ui`, (err) => {
+                if (err) console.error('[Reboot] Error:', err);
+              });
+            } catch (e) {
+              console.error('[Reboot] child_process not available:', e);
+            }
+          }
+        });
 
         // Teleop buttons
         this.el.querySelectorAll('.teleop-btn[data-dir]').forEach(btn => {
@@ -2122,6 +2590,14 @@
             this.sendTeleop(keyMap[e.key]);
             const btn = this.el.querySelector(`.teleop-btn[data-dir="${keyMap[e.key]}"]`);
             if (btn) btn.classList.add('pressed');
+          }
+
+          // Global Shift+C to toggle Control Panel
+          if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+            if (typeof require !== 'undefined') {
+              const { ipcRenderer } = require('electron');
+              ipcRenderer.send('toggle-control-panel');
+            }
           }
         };
 
@@ -2189,6 +2665,10 @@
         this.el.querySelectorAll('.dev-tab-content').forEach(panel => {
           panel.classList.toggle('active', panel.id === `tab-${tabName}`);
         });
+
+        if (tabName === 'map') {
+          MapController.load();
+        }
       },
 
       hide() {

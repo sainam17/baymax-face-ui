@@ -3,6 +3,7 @@ const path = require('path');
 const http = require('http');
 
 let faceWindow;
+let controlWindow;
 
 function createWindows() {
   // Get all displays and pick the secondary (external) one
@@ -74,11 +75,54 @@ function createWindows() {
       faceWindow.webContents.executeJavaScript(`devScreen.toggle()`);
     }
   });
+
+  ipcMain.on('toggle-control-panel', () => {
+    toggleControlPanel();
+  });
+}
+
+function toggleControlPanel() {
+  if (controlWindow && !controlWindow.isDestroyed()) {
+    if (controlWindow.isVisible()) {
+      controlWindow.hide();
+    } else {
+      controlWindow.show();
+      controlWindow.focus();
+    }
+    return;
+  }
+
+  // Create new control window if it doesn't exist
+  controlWindow = new BrowserWindow({
+    width: 650,
+    height: 900,
+    title: 'BayMax Control Panel',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  controlWindow.loadFile(path.join(__dirname, 'control.html'));
+
+  controlWindow.on('closed', () => {
+    controlWindow = null;
+  });
+
+  // Enable DevTools for debugging if needed (optional)
+  // controlWindow.webContents.openDevTools();
 }
 
 app.on('ready', () => {
+  const { globalShortcut } = require('electron');
+  
   createWindows();
   startIpcBridge();
+
+  // Global shortcut to toggle control panel
+  globalShortcut.register('CommandOrControl+Shift+C', () => {
+    toggleControlPanel();
+  });
 });
 
 // ── Internal IPC HTTP bridge (port 8768) ─────────────────────────────────────
@@ -93,6 +137,13 @@ function startIpcBridge() {
   ]);
 
   const server = http.createServer((req, res) => {
+    if (req.method === 'POST' && req.url === '/toggle-control') {
+      toggleControlPanel();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
+
     if (req.method !== 'POST' || req.url !== '/set-expression') {
       res.writeHead(404);
       res.end('Not found');
