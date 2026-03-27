@@ -48,7 +48,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 100px;
-      background: radial-gradient(ellipse at 45% 40%, #333333, #181818 70%);
+      background: radial-gradient(ellipse at 45% 40%, #3f3f3f, #313131 95%);
       box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
       transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
         width 0.4s ease, height 0.4s ease;
@@ -63,7 +63,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 100px;
-      background: radial-gradient(ellipse at 45% 40%, #111111, #000000 70%);
+      background: radial-gradient(ellipse at 45% 40%, #3b3b3b, #070707 70%);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
       transition: width 0.4s ease, height 0.4s ease;
     }
@@ -368,6 +368,7 @@
     .face-container .eye-socket .eyelid-top.closed,
     .face-container .eye-socket .eyelid-bottom.closed {
       translate: 0 0% !important;
+      transform: none !important;
     }
 
     /* Force natural blink timings */
@@ -666,12 +667,15 @@
     }
 
     .eyes-container-wrap.fade-out {
-      opacity: 0;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: none !important;
     }
 
     .mouth-container.fade-out {
-      opacity: 0;
-      transition: opacity 0s !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: none !important;
     }
 
     /* ===== MOUTH CONTAINER ===== */
@@ -1748,7 +1752,8 @@
           minHeight: 14,
           maxHeight: 70
         }
-      }
+      },
+      batteryThreshold: 30 // Threshold for warning popup
     };
 
     // ==========================================
@@ -1954,16 +1959,16 @@
 
           // Tiny eyelid droop — very subtle
           allEyelidTops.forEach(lid => {
-            lid.style.transition = 'transform 0.6s ease';
-            lid.style.transform = 'translateY(-82%)';
+            lid.style.transition = 'translate 0.6s ease';
+            lid.style.translate = '0 -82%';
           });
 
           // Return to open after a moment
           setTimeout(() => {
             if (!this._active) return;
             allEyelidTops.forEach(lid => {
-              lid.style.transition = 'transform 0.5s ease';
-              lid.style.transform = 'translateY(-100%)';
+              lid.style.transition = 'translate 0.5s ease';
+              lid.style.translate = '0 -100%';
             });
           }, 400 + Math.random() * 300);
 
@@ -1975,7 +1980,7 @@
 
     const EyeController = {
       // Reset all eyelid and eyeball states
-      resetAll() {
+      resetAll(nextExpression) {
         // Stop idle animations
         IdleAnimator.stop();
         // Stop thinking loop
@@ -2003,8 +2008,10 @@
           eye.classList.remove('warning-glow');
         });
 
-        // Hide battery warning
-        WarningController.hide();
+        // Hide battery warning ONLY if we are NOT going into warning state
+        if (nextExpression !== 'warning') {
+          WarningController.hide();
+        }
 
         // Clear eyeball states
         allEyeballs.forEach(eb => {
@@ -2324,7 +2331,21 @@
     // ==========================================
     const RobotFace = {
       init() {
-        this.setExpression('idle');
+        // Check battery level synchronously on boot
+        let startExpression = 'idle';
+        if (typeof require !== 'undefined') {
+          try {
+            const fs = require('fs');
+            const capacity = parseInt(fs.readFileSync('/sys/class/power_supply/BAT0/capacity', 'utf8').trim());
+            if (capacity <= CONFIG.batteryThreshold) {
+              startExpression = 'warning';
+            }
+          } catch (e) {
+            console.warn('[RobotFace] Initial battery check failed:', e);
+          }
+        }
+
+        this.setExpression(startExpression);
         EyeController.startRandomBlinking();
         this.exposeAPI();
         console.log('BayMax Face UI Initialized');
@@ -2333,7 +2354,7 @@
 
       setExpression(expression) {
         // Reset everything first
-        EyeController.resetAll();
+        EyeController.resetAll(expression);
         UI.faceContainer.className = 'face-container breathing relative w-full h-full flex flex-col items-center justify-center';
 
         State.currentExpression = expression;
@@ -2624,6 +2645,32 @@
 
         document.addEventListener('keydown', this._keyHandler);
         document.addEventListener('keyup', this._keyUpHandler);
+
+        // Periodic system status update (every 10 seconds)
+        this.refreshSystemStatus();
+        setInterval(() => this.refreshSystemStatus(), 10000);
+      },
+
+      refreshSystemStatus() {
+        if (typeof require === 'undefined') return;
+        const { exec } = require('child_process');
+
+        // 1. Update Battery
+        exec('cat /sys/class/power_supply/BAT0/capacity', (err, stdout) => {
+          if (!err && stdout) {
+            this.updateBattery(parseInt(stdout.trim()));
+          }
+        });
+
+        // 2. Update WiFi SSID
+        exec('iwgetid -r', (err, stdout) => {
+          if (!err && stdout) {
+            const ssid = stdout.trim();
+            this.updateStatus('Wifi', ssid, 'ok');
+          } else {
+            this.updateStatus('Wifi', 'Disconnected', 'error');
+          }
+        });
       },
 
       toggle() {
@@ -2703,7 +2750,7 @@
         const percentEl = document.getElementById('devBatteryPercent');
         const barEl = document.getElementById('devBatteryBar');
         const battChip = document.getElementById('devStatusBatt');
-        const isLow = percent <= 20;
+        const isLow = percent <= CONFIG.batteryThreshold;
 
         percentEl.textContent = `${Math.round(percent)}%`;
         percentEl.className = 'battery-percent' + (isLow ? ' low' : '');
@@ -2713,6 +2760,14 @@
         if (battChip) {
           battChip.textContent = `${Math.round(percent)}%`;
           battChip.className = 'status-chip-value ' + (isLow ? 'error' : 'ok');
+        }
+
+        // Auto-trigger warning expression if low battery
+        if (isLow && State.currentExpression !== 'warning') {
+          RobotFace.setExpression('warning');
+        } else if (!isLow && State.currentExpression === 'warning') {
+          // Auto-recovery when battery is charged
+          RobotFace.setExpression('idle');
         }
       },
 
