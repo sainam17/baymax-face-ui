@@ -2655,17 +2655,29 @@
         if (typeof require === 'undefined') return;
         const { exec } = require('child_process');
 
-        // 1. Update Battery
-        exec('cat /sys/class/power_supply/BAT0/capacity', (err, stdout) => {
-          if (!err && stdout) {
+        // 1. Update Battery - Robust detection
+        // Try to find any capacity file in power_supply, fallback to check if AC is online
+        const batteryCmd = "cat /sys/class/power_supply/*/capacity 2>/dev/null | head -n 1";
+        exec(batteryCmd, (err, stdout) => {
+          if (!err && stdout && stdout.trim() !== "") {
             this.updateBattery(parseInt(stdout.trim()));
+          } else {
+            // No battery found, check AC status
+            exec("cat /sys/class/power_supply/*/online 2>/dev/null | grep '1'", (acErr, acStdout) => {
+              if (!acErr && acStdout) {
+                this.updateBattery(100); // Show 100% if on AC power
+                const battChip = document.getElementById('devStatusBatt');
+                if (battChip) battChip.textContent = 'AC';
+              }
+            });
           }
         });
 
-        // 2. Update WiFi SSID
-        exec('iwgetid -r', (err, stdout) => {
-          if (!err && stdout) {
-            const ssid = stdout.trim();
+        // 2. Update WiFi SSID - Try iwgetid then nmcli as fallback
+        const wifiCmd = "iwgetid -r 2>/dev/null || nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2";
+        exec(wifiCmd, (err, stdout) => {
+          const ssid = stdout ? stdout.trim() : "";
+          if (ssid) {
             this.updateStatus('Wifi', ssid, 'ok');
           } else {
             this.updateStatus('Wifi', 'Disconnected', 'error');
