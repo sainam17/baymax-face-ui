@@ -1214,6 +1214,17 @@
       letter-spacing: 1px;
     }
 
+    .battery-voltage {
+      font-size: 16px;
+      font-weight: 700;
+      color: #00d4ff;
+      margin-top: 4px;
+      padding: 4px 12px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
     /* Map Panel */
     .map-area {
       flex: 1;
@@ -1657,6 +1668,7 @@
               <div id="devBatteryBar" class="battery-bar-inner" style="width: 100%"></div>
             </div>
             <div class="battery-label">Charge Level</div>
+            <div id="devBatteryVoltage" class="battery-voltage">0.00V</div>
           </div>
         </div>
       </div>
@@ -2655,17 +2667,35 @@
         if (typeof require === 'undefined') return;
         const { exec } = require('child_process');
 
-        // 1. Update Battery - Robust detection
-        // Try to find any capacity file in power_supply, fallback to check if AC is online
-        const batteryCmd = "cat /sys/class/power_supply/*/capacity 2>/dev/null | head -n 1";
+        // 1. Update Battery - Auto-detect Laptop vs 24V Pi System
+        // Read raw voltage_now (uV) and capacity
+        const batteryCmd = "cat /sys/class/power_supply/*/voltage_now /sys/class/power_supply/*/capacity 2>/dev/null";
         exec(batteryCmd, (err, stdout) => {
           if (!err && stdout && stdout.trim() !== "") {
-            this.updateBattery(parseInt(stdout.trim()));
+            const lines = stdout.trim().split('\n');
+            const uv = parseInt(lines[0]);
+            const sysCap = lines.length > 1 ? parseInt(lines[1]) : 100;
+            const voltage = uv / 1000000; // Convert to Volts
+
+            let percent = 100;
+
+            if (voltage > 6.0) {
+              // High Voltage Device (Laptop/PC): Use system-reported capacity
+              percent = sysCap;
+            } else {
+              // Low Voltage Device (Pi via 5V scale divider): Use 24V mapping (5.0V - 3.8V)
+              const vMin = 3.81;
+              const vMax = 5.0;
+              percent = ((voltage - vMin) / (vMax - vMin)) * 100;
+            }
+            
+            percent = Math.max(0, Math.min(100, percent));
+            this.updateBattery(percent, voltage);
           } else {
-            // No battery found, check AC status
+            // No battery metrics found, check AC status
             exec("cat /sys/class/power_supply/*/online 2>/dev/null | grep '1'", (acErr, acStdout) => {
               if (!acErr && acStdout) {
-                this.updateBattery(100); // Show 100% if on AC power
+                this.updateBattery(100, 5.0);
                 const battChip = document.getElementById('devStatusBatt');
                 if (battChip) battChip.textContent = 'AC';
               }
@@ -2757,10 +2787,11 @@
         }
       },
 
-      updateBattery(percent) {
+      updateBattery(percent, voltage) {
         percent = Math.max(0, Math.min(100, percent));
         const percentEl = document.getElementById('devBatteryPercent');
         const barEl = document.getElementById('devBatteryBar');
+        const voltEl = document.getElementById('devBatteryVoltage');
         const battChip = document.getElementById('devStatusBatt');
         const isLow = percent <= CONFIG.batteryThreshold;
 
@@ -2768,9 +2799,14 @@
         percentEl.className = 'battery-percent' + (isLow ? ' low' : '');
         barEl.style.width = `${percent}%`;
         barEl.className = 'battery-bar-inner' + (isLow ? ' low' : '');
+
+        if (voltEl && voltage !== undefined) {
+          voltEl.textContent = `${voltage.toFixed(2)}V`;
+        }
+
         // Sync status bar chip
         if (battChip) {
-          battChip.textContent = `${Math.round(percent)}%`;
+          battChip.textContent = voltage !== undefined ? `${voltage.toFixed(1)}V` : `${Math.round(percent)}%`;
           battChip.className = 'status-chip-value ' + (isLow ? 'error' : 'ok');
         }
 
